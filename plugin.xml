@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.eclipse.e4.ui.workbench.swt.E4Application"
+            name="it.example.helloword">
+         <property
+               name="applicationCSS"
+               value="platform:/plugin/it.package.helloword/css/default.css">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            label="Hello World Action Set"
+            visible="true"
+            id="it.example.helloword.actionset1">
+        
+            <menu
+               label="Hello World Menu"
+               id="helloWorldMenu">
+            	<separator
+                 	name="group1">
+            	</separator>
+         	</menu>
+            <action
+                  class="it.example.helloword.HelloWorldAction"
+                  id="helloWorldAction"
+                  label="Hello World Action"
+                  menubarPath="helloWorldMenu/group1"
+                  state="false"
+                  style="push">
+            </action>
+      </actionSet>
+   </extension>
+   <extension
+         id="it"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            class="org.eclipse.jdt.ui.PackageExplorer"
+            locationURI="it.package.helloword.menuContribution1">
+      </menuContribution>
+   </extension>
+</plugin>
