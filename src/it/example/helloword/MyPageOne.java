@@ -42,7 +42,6 @@ public class MyPageOne extends WizardPage {
             public void keyReleased(KeyEvent e) {
                 if (!text1.getText().isEmpty()) {
                     setPageComplete(true);
-
                 }
             }
 

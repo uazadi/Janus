@@ -1,10 +1,12 @@
 package it.example.helloword;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -24,6 +26,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
+import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
@@ -65,50 +68,71 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				List<List<ASTNode>> p = ms.selectInstances();
 
 				
+				List<Change> list = new LinkedList<Change>();
+				
 				//TODO Controllo che se due cloni sono nella stessa classe 
 				//     viene computato l'offset delle righe
 				for(List<ASTNode> cloneSet: p) {
 					boolean keep = true;
 					for(ASTNode clone: cloneSet) {
+						
 						Statement stmt = (Statement) clone;
+						
+						System.out.println(((TypeDeclaration) stmt.getParent().getParent().getParent()).getName());
+						System.out.println(((MethodDeclaration) stmt.getParent().getParent()).getName());
+						System.out.println(stmt);
+						
+						
 						ICompilationUnit icu = getICompilationUnit(stmt);
 						
-
 						ExtractMethodRefactoring refactoring = new ExtractMethodRefactoring(
 								icu, stmt.getStartPosition(), stmt.getLength());
 						
 						this.extMethodName = refactoring.getMethodName();
 						
+						refactoring.checkAllConditions(new NullProgressMonitor());
+						Change change = refactoring.createChange(new NullProgressMonitor());
+						refactoring.checkFinalConditions(new NullProgressMonitor());
 						
-						ExtractMethodWizard wizard = new ExtractMethodWizard(refactoring);
-						RefactoringStarter starter = new RefactoringStarter();
 						
-						if(!keep) {
-							refactoring.setMethodName("extracted1");
-							this.extMethodName = refactoring.getMethodName();
-							ASTRewrite fRewriter = ASTRewrite.create(stmt.getAST());
-							ASTNode[] astmt = {stmt};
-						}
-								
-						starter.activate(wizard, window.getShell(), "Title", 2);
+						change.perform(new NullProgressMonitor());
+						
+						//change.perform(new NullProgressMonitor());
+						
+						list.add(change);
+						
+//						ExtractMethodWizard wizard = new ExtractMethodWizard(refactoring);
+//
+//						RefactoringStarter starter = new RefactoringStarter();
+						
+//						if(!keep) {
+//							refactoring.setMethodName("extracted1");
+//							this.extMethodName = refactoring.getMethodName();
+//							ASTRewrite fRewriter = ASTRewrite.create(stmt.getAST());
+//							ASTNode[] astmt = {stmt};
+//						}
+//								
+					//starter.activate(wizard, window.getShell(), "Title", 2);
 
 						keep = false; // true only during the first execution
 						
-						System.out.println(((TypeDeclaration) stmt.getParent().getParent().getParent()).getName());
-						System.out.println(((MethodDeclaration) stmt.getParent().getParent()).getName());
-						System.out.println(stmt);
+						
 					}
 				}
+				
+				for(Change c: list)
+					c.perform(new NullProgressMonitor());
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-
-		WizardDialog wizardDialog = new WizardDialog(window.getShell(), new HelloWizard(""));
-		wizardDialog.open();
-
+		
+		
+//		WizardDialog wizardDialog = new WizardDialog(window.getShell(), new HelloWizard(""));
+//		wizardDialog.open();
 	}
 
 	private ICompilationUnit getICompilationUnit(Statement stmt) {
@@ -118,15 +142,6 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 		CompilationUnit cu = (CompilationUnit) parent;
 		ICompilationUnit icu = (ICompilationUnit) cu.getJavaElement();
 		return icu;
-	}
-
-	private void extractMethod(
-			Statement stmt, 
-			ICompilationUnit icu, 
-			boolean keep) {
-
-
-		
 	}
 
 	@Override
