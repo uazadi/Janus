@@ -134,6 +134,7 @@ public class JavaFile extends JavaContainer {
 		String content = readJavaFile(stringPath, Charset.defaultCharset());
 		Document doc = new Document(content);
 		ASTParser parser = ASTParser.newParser(AST.JLS11);
+		parser.setResolveBindings(true);
 		parser.setSource(doc.get().toCharArray());
 		return (CompilationUnit) parser.createAST(null);
 	}
