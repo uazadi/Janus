@@ -124,7 +124,6 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 						
 						IMethod toBeDeleted = extractedMethods[0];
 						
-						// Select
 						if(extractedMethods[0].getSignature().contains(" static "))
 							toBeDeleted = extractedMethods[0];
 						else if(extractedMethods[1].getSignature().contains(" static "))
