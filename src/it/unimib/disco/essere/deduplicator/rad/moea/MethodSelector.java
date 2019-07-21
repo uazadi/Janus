@@ -52,7 +52,6 @@ public class MethodSelector {
 					properties, 
 					problem);
 
-
 		List<List<Double>> fittests = new ArrayList<List<Double>>(); 
 		List<Double> iteration = new ArrayList<Double>(); 
 
@@ -111,7 +110,7 @@ public class MethodSelector {
 		if(problem instanceof CustomAbstractProblem) {
 			Map<String, String> solStmts = ((CustomAbstractProblem) problem)
 					.getValues(algorithm.getResult());
-
+			
 			// Find the solutions that contain the statement 
 			// that is duplicated the most
 			Set<String> duplicated = new HashSet<String>(solStmts.values());
