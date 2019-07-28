@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jface.text.Document;
 import org.osgi.framework.BundleContext;
@@ -57,7 +58,7 @@ public class JavaFile extends JavaContainer {
 		this.path = path.substring(dir.getName().length());
 		this.node = generateAST(path);
 		this.packageName = (node.getPackage() != null)
-				? node.getPackage().toString().split(" ")[1].replaceAll("[;\n]", "")
+				? node.getPackage().getName().toString()
 				: "";
 
 		this.importNames = extractImports();
@@ -69,7 +70,7 @@ public class JavaFile extends JavaContainer {
 		this.path = null;
 		this.node = generateAST(icu);
 		this.packageName = (node.getPackage() != null)
-				? node.getPackage().toString().split(" ")[1].replaceAll("[;\n]", "")
+				? node.getPackage().getName().toString()
 				: "";
 
 		this.importNames = extractImports();
