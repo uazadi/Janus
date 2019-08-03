@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -22,44 +23,40 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
-import org.eclipse.jdt.core.refactoring.descriptors.PullUpDescriptor;
+import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
+import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.corext.codemanipulation.CodeGenerationSettings;
-import org.eclipse.jdt.internal.corext.dom.StatementRewrite;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jdt.internal.corext.refactoring.structure.ExtractSupertypeProcessor;
-import org.eclipse.jdt.internal.corext.refactoring.structure.MoveInstanceMethodProcessor;
 import org.eclipse.jdt.internal.corext.refactoring.structure.PullUpRefactoringProcessor;
-import org.eclipse.jdt.internal.ui.refactoring.actions.RefactoringStarter;
-import org.eclipse.jdt.internal.ui.refactoring.code.ExtractMethodWizard;
 import org.eclipse.jdt.internal.ui.preferences.JavaPreferencesSettings;
 import org.eclipse.jdt.internal.ui.refactoring.RefactoringSaveHelper;
-import org.eclipse.jdt.internal.core.ClassFile;
-import org.eclipse.jdt.internal.core.DeleteElementsOperation;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ltk.core.refactoring.Change;
-import org.eclipse.ltk.core.refactoring.CompositeChange;
-import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.text.edits.DeleteEdit;
-import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.ISourceReference;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
-import org.eclipse.ltk.core.refactoring.participants.MoveProcessor;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.PreprocessingFacade;
@@ -113,50 +110,55 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			System.out.println("[HelloWorldAction - accomplishRefactoring]  " + "Code Clones:");
 
 			// For each set of clone to be refactored
-			for(List<ASTNode> cloneSet: p) {
-
-				List<ICompilationUnit> icus_involved = new LinkedList<>();
-				sortNodes(cloneSet);
-
-				// For each clone within the group selected 
-				for(int i=0; i < cloneSet.size(); i++) {
-					Statement stmt = (Statement) cloneSet.get(i);
-
-					System.out.println("[HelloWorldAction - accomplishRefactoring]  " + stmt.toString());
-
-					extractMethod(stmt, icus_involved);
-				}
-				List<IMethod> extractedMethods = getExtractedMethods(icus_involved);
-
-				boolean sameClass = true;
-				for(int i=0; i < icus_involved.size(); i++) {
-					for(int j=i+1; j < icus_involved.size(); j++) {
-
-						String name1 = buildFullName(icus_involved.get(i));
-						String name2 = buildFullName(icus_involved.get(j));
-
-						//System.out.println("[HelloWorldAction  - accomplishRefactoring]" + name1);
-
-						if(!name1.equals(name2)) {
-							sameClass = false;
-							break;
-						}
-
-					}
-				}
-
-				if(sameClass)
-					selectOneOfExtracted(extractedMethods);
-				else
-					selectOneOfExtractedSameHierarchy(extractedMethods, icus_involved, ih);
-
-				for(ICompilationUnit icu: icus_involved)
-					icu.close();
-			}
+			toBecomeClass(ih, p);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void toBecomeClass(InstancesHandler ih, List<List<ASTNode>> p)
+			throws JavaModelException, CoreException, BadLocationException {
+		for(List<ASTNode> cloneSet: p) {
+
+			List<ICompilationUnit> icus_involved = new LinkedList<>();
+			sortNodes(cloneSet);
+
+			// For each clone within the group selected 
+			for(int i=0; i < cloneSet.size(); i++) {
+				Statement stmt = (Statement) cloneSet.get(i);
+
+				System.out.println("[HelloWorldAction - accomplishRefactoring]  " + stmt.toString());
+
+				extractMethod(stmt, icus_involved);
+			}
+			List<IMethod> extractedMethods = getExtractedMethods(icus_involved);
+
+			boolean sameClass = true;
+			for(int i=0; i < icus_involved.size(); i++) {
+				for(int j=i+1; j < icus_involved.size(); j++) {
+
+					String name1 = buildFullName(icus_involved.get(i));
+					String name2 = buildFullName(icus_involved.get(j));
+
+					//System.out.println("[HelloWorldAction  - accomplishRefactoring]" + name1);
+
+					if(!name1.equals(name2)) {
+						sameClass = false;
+						break;
+					}
+
+				}
+			}
+
+			if(sameClass)
+				selectOneOfExtracted(extractedMethods);
+			else
+				selectOneOfExtractedSameHierarchy(extractedMethods, icus_involved, ih);
+
+			for(ICompilationUnit icu: icus_involved)
+				icu.close();
 		}
 	}
 
@@ -192,7 +194,7 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			List<IMethod> extractedMethods,
 			List<ICompilationUnit> icus_involved,
 			InstancesHandler ih 
-			) throws JavaModelException {
+			) throws JavaModelException, MalformedTreeException, BadLocationException {
 
 
 		String lcsSoFar = buildFullName(icus_involved.get(0)).replace(".java", "");
@@ -202,33 +204,127 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 		}
 
 		ICompilationUnit superClass = getSuperClassICompilationUnit(lcsSoFar);
+		//CompilationUnit superClassCU = fromICUtoCU(superClass);
+
 
 		IMethod kept = null;
 		if(extractedMethods.size() >= 2) {
 			kept = selectMethodToKeep(extractedMethods, kept);
 			if(superClass == null) {
-				// ApplyExtractSuperClass
-				CodeGenerationSettings settings =
-						JavaPreferencesSettings.getCodeGenerationSettings(kept.getCompilationUnit().getJavaProject());
-
-				IMember[] ims = {kept};
-
-				ExtractSupertypeProcessor refactoring = new ExtractSupertypeProcessor(ims, settings);
-				try {
-					refactoring.checkInitialConditions(new NullProgressMonitor());
-					CheckConditionsContext ccc = new CheckConditionsContext();
-					ccc.add(new ResourceChangeChecker());
-					refactoring.checkFinalConditions(new NullProgressMonitor(), ccc);
-					Change change = refactoring.createChange(new NullProgressMonitor());
-					change.perform(new NullProgressMonitor());
-				} catch (OperationCanceledException | CoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
+				applyExtractClass(icus_involved, kept);
 			}
 			else
 				applyPullUpRefactoring(extractedMethods, lcsSoFar, superClass);
+		}
+	}
+
+	private void applyExtractClass(List<ICompilationUnit> icus_involved, IMethod kept)
+			throws BadLocationException, JavaModelException {
+		// ApplyExtractSuperClass
+		applyExtractSuperclass(kept);
+		ICompilationUnit selectedICU = kept.getCompilationUnit();
+		CompilationUnit selectedCU =  this.fromICUtoCU(selectedICU);
+
+		ASTParser parser = ASTParser.newParser(AST.JLS11); 
+		parser.setSource(selectedICU);
+
+		//------------------------------------------
+		//				System.out.println("[HelloWorldAction -  fromICUtoCU]  " + (ITypeRoot) selectedICU);
+		//				
+		//				parser.setResolveBindings(true); // we need bindings later on
+		//				parser.setProject(selectedProject);
+		//				CompilationUnit cu = (CompilationUnit) parser.createAST(null /* IProgressMonitor */); // parse
+		//				
+		//				parser.createASTs(ICompilationUnit[] compilationUnits, String[] bindingKeys, ASTRequestor requestor, IProgressMonitor monitor);
+
+		//-------------------------------------------
+
+		System.out.println("[HelloWorldAction  -  selectOneOfExtractedSameHierarchy] Parsent of ICompilationUnit"  +  selectedCU.getParent());				
+
+		icus_involved.remove(selectedICU);
+		Type superClassType = ((TypeDeclaration)selectedCU.types().get(0)).getSuperclassType();
+
+
+
+		for(ICompilationUnit icu: icus_involved) {
+			CompilationUnit cu = fromICUtoCU(icu);
+
+			ASTRewrite rewriter = ASTRewrite.create(cu.getAST());
+//
+//					TypeDeclaration td = (TypeDeclaration) cu.types().get(0);
+//					
+//					Type superCU = ((TypeDeclaration)cu.types().get(0)).getSuperclassType();
+
+//					ITrackedNodePosition tdLocation = rewriter.track(td);
+//					ListRewrite lrw = rewriter.getListRewrite(cu, CompilationUnit.IMPORTS_PROPERTY);
+//					lrw.replace(superCU, superClassType, null);
+			
+//					TextEdit edits = rewriter.rewriteAST(icu., null);
+//					UndoEdit undo = null;
+//					try {
+//						undo = edits.apply(document);
+//					} catch(MalformedTreeException e) {
+//						e.printStackTrace();
+//					} catch(BadLocationException e) {
+//						e.printStackTrace();
+//					}
+			
+			
+
+			((TypeDeclaration) cu.types().get(0)).setSuperclassType(cu.getAST().newSimpleType(cu.getAST().newSimpleName("Prova")));
+			
+
+			//Document document = new Document(icu.getSource());
+			Document document = new Document(cu.toString());
+			
+			TextEdit edits = rewriter.rewriteAST(document, null);
+			edits.apply(document);
+		    icu.getBuffer().setContents(document.get());
+			
+		    System.out.println("[HelloWorldAction  -  selectOneOfExtractedSameHierarchy  -  Document] ");
+			System.out.println(document.get());
+			
+			
+			//cu.rewrite(document, options)
+
+			System.out.println("[HelloWorldAction  -  selectOneOfExtractedSameHierarchy  -  CompilationUnit]");
+			System.out.println(cu);
+		}
+
+
+
+		kept.delete(true, null);
+	}
+
+	private CompilationUnit fromICUtoCU(ICompilationUnit icu) {
+		ASTParser parser = ASTParser.newParser(AST.JLS11); 
+		parser.setSource(icu);
+
+		System.out.println("[HelloWorldAction -  fromICUtoCU]  " + (ITypeRoot) icu);
+
+		parser.setResolveBindings(true); // we need bindings later on
+		parser.setProject(selectedProject);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null /* IProgressMonitor */); // parse
+		return cu;
+	}
+
+	private void applyExtractSuperclass(IMethod kept) {
+		CodeGenerationSettings settings =
+				JavaPreferencesSettings.getCodeGenerationSettings(kept.getCompilationUnit().getJavaProject());
+
+		IMember[] ims = {kept};
+
+		ExtractSupertypeProcessor refactoring = new ExtractSupertypeProcessor(ims, settings);
+		try {
+			refactoring.checkInitialConditions(new NullProgressMonitor());
+			refactoring.setTypeName("Prova");
+			CheckConditionsContext ccc = new CheckConditionsContext();
+			ccc.add(new ResourceChangeChecker());
+			refactoring.checkFinalConditions(new NullProgressMonitor(), ccc);
+			Change change = refactoring.createChange(new NullProgressMonitor());
+			change.perform(new NullProgressMonitor());
+		} catch (OperationCanceledException | CoreException e) {
+			e.printStackTrace();
 		}
 	}
 
