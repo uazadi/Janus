@@ -63,6 +63,7 @@ import it.unimib.disco.essere.deduplicator.preprocessing.PreprocessingFacade;
 import it.unimib.disco.essere.deduplicator.rad.moea.MethodSelector;
 import it.unimib.disco.essere.deduplicator.rad.moea.MultiObjective;
 import it.unimib.disco.essere.deduplicator.rad.moea.SingleObjective;
+import it.unimib.disco.essere.deduplicator.refactoring.CCRefactoring;
 
 @SuppressWarnings("restriction")
 public class HelloWorldAction extends Action implements IWorkbenchWindowActionDelegate {
@@ -107,10 +108,12 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			MethodSelector ms = new MethodSelector(so, resolutionMethod, numberOfIteration, ih);
 			List<List<ASTNode>> p = ms.selectInstances();
 
-			System.out.println("[HelloWorldAction - accomplishRefactoring]  " + "Code Clones:");
-
+			CCRefactoring refactoring = 
+					CCRefactoring.selectRefactoringTechniques(ih, p, project);
+			refactoring.apply();
+			
 			// For each set of clone to be refactored
-			toBecomeClass(ih, p);
+			//toBecomeClass(ih, p);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
@@ -128,9 +131,6 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			// For each clone within the group selected 
 			for(int i=0; i < cloneSet.size(); i++) {
 				Statement stmt = (Statement) cloneSet.get(i);
-
-				System.out.println("[HelloWorldAction - accomplishRefactoring]  " + stmt.toString());
-
 				extractMethod(stmt, icus_involved);
 			}
 			List<IMethod> extractedMethods = getExtractedMethods(icus_involved);
@@ -182,6 +182,38 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				}
 			}
 		}
+	}
+	
+	/**
+	 * This method delete all the <extractedMethods> except one, which is the 
+	 * one returned by the function
+	 * 
+	 * @param extractedMethods
+	 * @param kept
+	 * @return
+	 * @throws JavaModelException
+	 */
+	private IMethod selectMethodToKeep(List<IMethod> extractedMethods, IMethod kept) throws JavaModelException {
+		boolean toKeepChosen = false;
+		for(int i=0; i < extractedMethods.size(); i++) {
+			IMethod extr = extractedMethods.get(i);
+
+			// A method has to be kept if:
+			// 1) No other method has already been chosen
+			// AND
+			// 2) either this is the last of the methods extracted 
+			//    OR this is the first "static" method extracted
+			if(!toKeepChosen &&
+					(extr.getSignature().contains(" static ") ||
+							(i + 1) == extractedMethods.size())) {
+				kept = extr;
+				toKeepChosen = true;	
+			}
+			else {
+				extr.delete(true, null);
+			}
+		}
+		return kept;
 	}
 
 	private String buildFullName(ICompilationUnit icu) throws JavaModelException {
@@ -339,38 +371,6 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 		}
 	}
 
-
-	/**
-	 * This method delete all the <extractedMethods> except one, which is the 
-	 * one returned by the function
-	 * 
-	 * @param extractedMethods
-	 * @param kept
-	 * @return
-	 * @throws JavaModelException
-	 */
-	private IMethod selectMethodToKeep(List<IMethod> extractedMethods, IMethod kept) throws JavaModelException {
-		boolean toKeepChosen = false;
-		for(int i=0; i < extractedMethods.size(); i++) {
-			IMethod extr = extractedMethods.get(i);
-
-			// A method has to be kept if:
-			// 1) No other method has already been chosen
-			// AND
-			// 2) either this is the last of the methods extracted 
-			//    OR this is the first "static" method extracted
-			if(!toKeepChosen &&
-					(extr.getSignature().contains(" static ") ||
-							(i + 1) == extractedMethods.size())) {
-				kept = extr;
-				toKeepChosen = true;	
-			}
-			else {
-				extr.delete(true, null);
-			}
-		}
-		return kept;
-	}
 
 	private void pullUpMethod(String lcsSoFar, ICompilationUnit superClass, IMethod kept) throws JavaModelException {
 		//PullUpDescriptor pud = new PullUpDescriptor();
