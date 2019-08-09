@@ -1,5 +1,6 @@
 package it.unimib.disco.essere.deduplicator.refactoring;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,10 +16,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.text.edits.MalformedTreeException;
 
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
@@ -31,22 +34,24 @@ public abstract class CCRefactoring {
 	protected List<IMethod> extractedMethods;
 	protected IJavaProject project;
 
-	public static CCRefactoring selectRefactoringTechniques(
+	public static List<CCRefactoring> selectRefactoringTechniques(
 			InstancesHandler ih, 
 			List<List<ASTNode>> cloneSets,
-			IJavaProject selectedProject) throws JavaModelException {
+			IJavaProject selectedProject) 
+					throws JavaModelException, NotRefactorableCodeClones {
 
-		CCRefactoring refactoring = null;
+		List<CCRefactoring> refactorings = new ArrayList<>();
 		
 		for(List<ASTNode> cloneSet: cloneSets) {
 			
+			CCRefactoring refactoring = null;
+
 			for(int i=0; i < cloneSet.size(); i++) {
 				Statement stmt = (Statement) cloneSet.get(i);
-
+				System.out.println("[CCRefactoring - selectRefactoringTechniques] Method" + ((MethodDeclaration) stmt.getParent().getParent()).getName());
 				System.out.println("[CCRefactoring - selectRefactoringTechniques]\n" + stmt.toString());
-
 			}
-			
+
 			List<ICompilationUnit> icus_involved = new LinkedList<>();
 
 			// For each clone within the group selected 
@@ -82,37 +87,42 @@ public abstract class CCRefactoring {
 					String className =  
 							buildFullName(icus_involved.get(i)).replace(".java", "");
 					lcsSoFar = ih.findNearestCommonSuperclass(lcsSoFar, className);		
+
+					System.out.println("[CCRefactoring - selectRefactoringTechniques]  LCS SO FAR: " + lcsSoFar);
 				}
 
-				System.out.println("[CCRefactoring - selectRefactoringTechniques]  " + lcsSoFar);
-				
-				ICompilationUnit superClass = 
-						getSuperClassICompilationUnit(lcsSoFar, selectedProject);
+				System.out.println("[CCRefactoring - selectRefactoringTechniques]  LCS SO FAR: " + lcsSoFar);
 
-				if(icus_involved.size() >= 2) {
-					if(superClass == null) {
-						refactoring = new CCExtractSuperclass(
-								cloneSet, 
-								icus_involved,
-								selectedProject);
-					}
-					else {
-						refactoring = new CCExtractPullUpMethods(
-								cloneSet, 
-								icus_involved,
-								selectedProject,
-								lcsSoFar,
-								superClass);
+				if(lcsSoFar != null) { 
+
+					ICompilationUnit superClass = 
+							getSuperClassICompilationUnit(lcsSoFar, selectedProject);
+
+					if(icus_involved.size() >= 2) {
+						if(superClass == null) {
+							refactoring = new CCExtractSuperclass(
+									cloneSet, 
+									icus_involved,
+									selectedProject);
+						}
+						else {
+							refactoring = new CCExtractPullUpMethods(
+									cloneSet, 
+									icus_involved,
+									selectedProject,
+									lcsSoFar,
+									superClass);
+						}
 					}
 				}
 			}
+			
+			if(refactoring != null)
+				refactorings.add(refactoring);
+			else
+				throw new NotRefactorableCodeClones();
 		}
-
-
-		//		for(ICompilationUnit icu: icus_involved)
-		//			icu.close();
-
-		return refactoring;
+		return refactorings;
 	}
 
 	public CCRefactoring(

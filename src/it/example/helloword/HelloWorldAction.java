@@ -63,9 +63,11 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			MethodSelector ms = new MethodSelector(so, resolutionMethod, numberOfIteration, ih);
 			List<List<ASTNode>> p = ms.selectInstances();
 
-			CCRefactoring refactoring = 
+			List<CCRefactoring> refactorings = 
 					CCRefactoring.selectRefactoringTechniques(ih, p, project);
-			refactoring.apply();
+			for(CCRefactoring ccr: refactorings)
+				ccr.apply();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {

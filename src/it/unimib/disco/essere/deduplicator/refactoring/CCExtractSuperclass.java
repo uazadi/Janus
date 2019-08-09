@@ -84,12 +84,16 @@ public class CCExtractSuperclass extends CCRefactoring {
 			ASTRewrite rewriter = ASTRewrite.create(cu.getAST());
 			((TypeDeclaration) cu.types().get(0)).setSuperclassType(cu.getAST().newSimpleType(cu.getAST().newSimpleName("Prova")));
 
-
 			//Document document = new Document(icu.getSource());
+			
+			String s = ((TypeDeclaration) cu.types().get(0)).toString();
+			
 			Document document = new Document(cu.toString());
-
+			
 			TextEdit edits = rewriter.rewriteAST(document, null);
 			edits.apply(document);
+			
+			System.out.println(edits);
 			icu.getBuffer().setContents(document.get());
 		}
 	}
@@ -97,13 +101,9 @@ public class CCExtractSuperclass extends CCRefactoring {
 	private CompilationUnit fromICUtoCU(ICompilationUnit icu) {
 		ASTParser parser = ASTParser.newParser(AST.JLS11); 
 		parser.setSource(icu);
-
-		System.out.println("[HelloWorldAction -  fromICUtoCU]  " + (ITypeRoot) icu);
-
 		parser.setResolveBindings(true); // we need bindings later on
 		parser.setProject(project);
 		CompilationUnit cu = (CompilationUnit) parser.createAST(null /* IProgressMonitor */); // parse
 		return cu;
 	}
-
 }
