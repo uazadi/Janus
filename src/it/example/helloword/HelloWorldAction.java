@@ -18,6 +18,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
+import it.unimib.disco.essere.deduplicator.preprocessing.MethodHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.PreprocessingFacade;
 import it.unimib.disco.essere.deduplicator.rad.moea.MethodSelector;
 import it.unimib.disco.essere.deduplicator.rad.moea.MultiObjective;
@@ -53,6 +54,7 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 	private void accomplishRefactoring(IJavaProject project) {
 		try {
 			PreprocessingFacade pf = new PreprocessingFacade();
+			MethodHandler.clear();
 			InstancesHandler ih = pf.parseSourceCode(project);
 
 			//MultiObjective mo = new MultiObjective(ih, 30);

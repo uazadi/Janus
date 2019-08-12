@@ -39,4 +39,7 @@ Import-Package: org.eclipse.core.resources,
  org.eclipse.ui.texteditor
 Automatic-Module-Name: it.package.helloword
 Bundle-ClassPath: .,
- lib/org.eclipse.jdt.ui-3.18.0.jar
+ lib/org.eclipse.jdt.ui-3.18.0.jar,
+ lib/org.apache.commons.lang3_3.7.0.jar,
+ lib/org.apache.commons.math3_3.4.1.jar,
+ lib/org.moeaframework_2.12.0.jar

@@ -31,7 +31,11 @@ public class MethodHandler implements InstancesHandler{
 
 	private int minNumLines = 2;
 
-	private MethodHandler() {}
+	private MethodHandler() {
+		this.methods = new HashMap<>();
+		this.hierarchyMap = new HashMap<>();
+		this.lowerAvaibleIndex = 0;
+	}
 
 	/**
 	 * @return the only instance allowed for this class
@@ -39,11 +43,12 @@ public class MethodHandler implements InstancesHandler{
 	public static synchronized MethodHandler getInstance() {
 		if (instance == null) {
 			instance = new MethodHandler();
-			instance.methods = new HashMap<>();
-			instance.hierarchyMap = new HashMap<>();
-			instance.lowerAvaibleIndex = 0;
 		}
 		return instance;
+	}
+	
+	public static synchronized void clear() {
+		instance = new MethodHandler();
 	}
 
 	public void setMinNumLines(int minNumLines) {

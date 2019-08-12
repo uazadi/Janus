@@ -39,6 +39,7 @@ public class CCExtractSuperclass extends CCRefactoring {
 
 	@Override
 	public void apply() throws UnsuccessfulRefactoringException {
+		checkCloneType();
 		sortNodes(cloneSet);
 		try {
 			extractMethods();

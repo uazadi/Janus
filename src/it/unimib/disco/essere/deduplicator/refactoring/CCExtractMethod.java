@@ -23,8 +23,10 @@ public class CCExtractMethod extends CCRefactoring {
 	public void apply() throws UnsuccessfulRefactoringException {
 		sortNodes(cloneSet);
 		try {
+			checkCloneType();
 			extractMethods();
 			selectMethodToKeep(extractedMethods);
+			
 		} catch(JavaModelException e) {
 			// TODO Check access to delete method 
 			// raise when trying to get a method that has already been deleted

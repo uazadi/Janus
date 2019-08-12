@@ -11,5 +11,4 @@ public class NotRefactorableCodeClones extends Exception {
 		super(message);
 	}
 
-	
 }

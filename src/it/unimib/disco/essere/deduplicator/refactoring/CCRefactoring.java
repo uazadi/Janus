@@ -2,6 +2,7 @@ package it.unimib.disco.essere.deduplicator.refactoring;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,10 +15,15 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -73,48 +79,20 @@ public abstract class CCRefactoring {
 						sameClass = false;
 						break;
 					}
-
 				}
 			}
 
+			
+			
 			if(sameClass) {
 				refactoring = new CCExtractMethod(cloneSet, icus_involved, selectedProject);
 			}
 			else { // try same hierarchy
-				String lcsSoFar = 
-						buildFullName(icus_involved.get(0)).replace(".java", "");
-				for(int i=1; i < icus_involved.size(); i++) {
-					String className =  
-							buildFullName(icus_involved.get(i)).replace(".java", "");
-					lcsSoFar = ih.findNearestCommonSuperclass(lcsSoFar, className);		
-
-					System.out.println("[CCRefactoring - selectRefactoringTechniques]  LCS SO FAR: " + lcsSoFar);
-				}
-
-				System.out.println("[CCRefactoring - selectRefactoringTechniques]  LCS SO FAR: " + lcsSoFar);
-
-				if(lcsSoFar != null) { 
-
-					ICompilationUnit superClass = 
-							getSuperClassICompilationUnit(lcsSoFar, selectedProject);
-
-					if(icus_involved.size() >= 2) {
-						if(superClass == null) {
-							refactoring = new CCExtractSuperclass(
-									cloneSet, 
-									icus_involved,
-									selectedProject);
-						}
-						else {
-							refactoring = new CCExtractPullUpMethods(
-									cloneSet, 
-									icus_involved,
-									selectedProject,
-									lcsSoFar,
-									superClass);
-						}
-					}
-				}
+				refactoring = attemptSameHierarchyRefactoring(ih, 
+															  selectedProject, 
+															  cloneSet, 
+															  refactoring,
+															  icus_involved);
 			}
 			
 			if(refactoring != null)
@@ -123,6 +101,46 @@ public abstract class CCRefactoring {
 				throw new NotRefactorableCodeClones();
 		}
 		return refactorings;
+	}
+
+	private static CCRefactoring attemptSameHierarchyRefactoring(InstancesHandler ih, IJavaProject selectedProject,
+			List<ASTNode> cloneSet, CCRefactoring refactoring, List<ICompilationUnit> icus_involved)
+			throws JavaModelException {
+		String lcsSoFar = 
+				buildFullName(icus_involved.get(0)).replace(".java", "");
+		for(int i=1; i < icus_involved.size(); i++) {
+			String className =  
+					buildFullName(icus_involved.get(i)).replace(".java", "");
+			lcsSoFar = ih.findNearestCommonSuperclass(lcsSoFar, className);		
+
+			System.out.println("[CCRefactoring - selectRefactoringTechniques]  LCS SO FAR: " + lcsSoFar);
+		}
+
+		System.out.println("[CCRefactoring - selectRefactoringTechniques]  LCS SO FAR: " + lcsSoFar);
+
+		if(lcsSoFar != null) { 
+
+			ICompilationUnit superClass = 
+					getSuperClassICompilationUnit(lcsSoFar, selectedProject);
+
+			if(icus_involved.size() >= 2) {
+				if(superClass == null) {
+					refactoring = new CCExtractSuperclass(
+							cloneSet, 
+							icus_involved,
+							selectedProject);
+				}
+				else {
+					refactoring = new CCExtractPullUpMethods(
+							cloneSet, 
+							icus_involved,
+							selectedProject,
+							lcsSoFar,
+							superClass);
+				}
+			}
+		}
+		return refactoring;
 	}
 
 	public CCRefactoring(
@@ -267,6 +285,101 @@ public abstract class CCRefactoring {
 		}
 		return keep;
 	}
+	
+	protected void checkCloneType() {
+		String type = "";
+		for(int i=0; i < this.cloneSet.size(); i++) {
+			for(int j=i+1; j < this.cloneSet.size(); j++) {
+				Statement stmt1 = (Statement) this.cloneSet.get(i);
+				Statement stmt2 = (Statement) this.cloneSet.get(j);
+				
+				ASTMatcher matcher = new ASTMatcher();
+				
+				stmt1.
+				
+				if(stmt1.subtreeMatch(matcher, stmt2)) {
+					System.out.println("[[[[[[[[[[[[[[[[EXACT MATCH]]]]]]]]]]]]]]]]");
+				}else {
+					System.out.println("[[[[[[[[[[[[[[[[NOT EXACT MATCH]]]]]]]]]]]]]]]]");
+					this.equals(stmt1, stmt2);
+				}
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	 List<StructuralPropertyDescriptor> getDiff(ASTNode left, ASTNode right) {
+        // if both are null, they are equal, but if only one, they aren't
+        if (left == null && right == null) {
+            return true;
+        } else if (left == null || right == null) {
+            return false;
+        }
+        // if node types are the same we can assume that they will have the same
+        // properties
+        if (left.getNodeType() != right.getNodeType()) {
+            return false;
+        }
+        
+		List<StructuralPropertyDescriptor> props = left
+                .structuralPropertiesForType();
+		
+		 System.out.println("[CCRefactoring  --  equals] props size   : " + props.size());
+		
+        for (StructuralPropertyDescriptor property : props) {
+            Object leftVal = left.getStructuralProperty(property);
+            Object rightVal = right.getStructuralProperty(property);
+            
+            System.out.println("[CCRefactoring  --  equals] getClass      : " + property.getClass());
+            
+            System.out.println("[CCRefactoring  --  equals] leftVal   : " + leftVal);
+            System.out.println("[CCRefactoring  --  equals] rightVal  : " + rightVal);
+            
+            
+            
+            if (property.isSimpleProperty()) {
+                // check for simple properties (primitive types, Strings, ...)
+                // with normal equality 
+            	
+            	if( property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.BooleanLiteral")       ||
+            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.CharacterLiteral") ||
+            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.NumberLiteral")    ||
+            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.StringLiteral")    ||
+            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.TypeLiteral")) {
+            		
+            	
+            		
+            	}
+            		
+       	
+                if (!leftVal.equals(rightVal)) {
+                    return false;
+                }
+            } else if (property.isChildProperty()) {
+                // recursively call this function on child nodes
+                if (!equals((ASTNode) leftVal, (ASTNode) rightVal)) {
+                    return false;
+                }
+            } else if (property.isChildListProperty()) {
+
+				Iterator<ASTNode> leftValIt = ((Iterable<ASTNode>) leftVal)
+                        .iterator();
+				Iterator<ASTNode> rightValIt = ((Iterable<ASTNode>) rightVal)
+                        .iterator();
+                while (leftValIt.hasNext() && rightValIt.hasNext()) {
+                    // recursively call this function on child nodes
+                    if (!equals(leftValIt.next(), rightValIt.next())) {
+                        return false;
+                    }
+                }
+                // one of the value lists have additional elements
+                if (leftValIt.hasNext() || rightValIt.hasNext()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
 	public abstract void apply()  throws UnsuccessfulRefactoringException;
 
