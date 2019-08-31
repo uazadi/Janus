@@ -5,7 +5,10 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -20,10 +23,13 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -47,9 +53,9 @@ public abstract class CCRefactoring {
 					throws JavaModelException, NotRefactorableCodeClones {
 
 		List<CCRefactoring> refactorings = new ArrayList<>();
-		
+
 		for(List<ASTNode> cloneSet: cloneSets) {
-			
+
 			CCRefactoring refactoring = null;
 
 			for(int i=0; i < cloneSet.size(); i++) {
@@ -82,19 +88,19 @@ public abstract class CCRefactoring {
 				}
 			}
 
-			
-			
+
+
 			if(sameClass) {
 				refactoring = new CCExtractMethod(cloneSet, icus_involved, selectedProject);
 			}
 			else { // try same hierarchy
 				refactoring = attemptSameHierarchyRefactoring(ih, 
-															  selectedProject, 
-															  cloneSet, 
-															  refactoring,
-															  icus_involved);
+						selectedProject, 
+						cloneSet, 
+						refactoring,
+						icus_involved);
 			}
-			
+
 			if(refactoring != null)
 				refactorings.add(refactoring);
 			else
@@ -105,7 +111,7 @@ public abstract class CCRefactoring {
 
 	private static CCRefactoring attemptSameHierarchyRefactoring(InstancesHandler ih, IJavaProject selectedProject,
 			List<ASTNode> cloneSet, CCRefactoring refactoring, List<ICompilationUnit> icus_involved)
-			throws JavaModelException {
+					throws JavaModelException {
 		String lcsSoFar = 
 				buildFullName(icus_involved.get(0)).replace(".java", "");
 		for(int i=1; i < icus_involved.size(); i++) {
@@ -285,101 +291,138 @@ public abstract class CCRefactoring {
 		}
 		return keep;
 	}
-	
+
 	protected void checkCloneType() {
 		String type = "";
 		for(int i=0; i < this.cloneSet.size(); i++) {
 			for(int j=i+1; j < this.cloneSet.size(); j++) {
 				Statement stmt1 = (Statement) this.cloneSet.get(i);
 				Statement stmt2 = (Statement) this.cloneSet.get(j);
-				
+
 				ASTMatcher matcher = new ASTMatcher();
-				
-				stmt1.
-				
+
 				if(stmt1.subtreeMatch(matcher, stmt2)) {
 					System.out.println("[[[[[[[[[[[[[[[[EXACT MATCH]]]]]]]]]]]]]]]]");
 				}else {
-					System.out.println("[[[[[[[[[[[[[[[[NOT EXACT MATCH]]]]]]]]]]]]]]]]");
-					this.equals(stmt1, stmt2);
+					System.out.println("[[[[[[[[[[[[[[[[NOT EXACT MATCH]]]]]]]]]]]]]]]]");					
+					break;
+				}
+			}
+		}
+
+		if(cloneSet.size() > 1) {
+			for(List<ASTNode> diffs: getDiffs(cloneSet)) {
+				System.out.println("[CCRefactoring      ---      checkCloneType]" + diffs.size());
+				for(ASTNode diff: diffs) {
+					System.out.println("[CCRefactoring      ---      checkCloneType]" + diff.toString());
 				}
 			}
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
-	 List<StructuralPropertyDescriptor> getDiff(ASTNode left, ASTNode right) {
-        // if both are null, they are equal, but if only one, they aren't
-        if (left == null && right == null) {
-            return true;
-        } else if (left == null || right == null) {
-            return false;
-        }
-        // if node types are the same we can assume that they will have the same
-        // properties
-        if (left.getNodeType() != right.getNodeType()) {
-            return false;
-        }
-        
-		List<StructuralPropertyDescriptor> props = left
-                .structuralPropertiesForType();
-		
-		 System.out.println("[CCRefactoring  --  equals] props size   : " + props.size());
-		
-        for (StructuralPropertyDescriptor property : props) {
-            Object leftVal = left.getStructuralProperty(property);
-            Object rightVal = right.getStructuralProperty(property);
-            
-            System.out.println("[CCRefactoring  --  equals] getClass      : " + property.getClass());
-            
-            System.out.println("[CCRefactoring  --  equals] leftVal   : " + leftVal);
-            System.out.println("[CCRefactoring  --  equals] rightVal  : " + rightVal);
-            
-            
-            
-            if (property.isSimpleProperty()) {
-                // check for simple properties (primitive types, Strings, ...)
-                // with normal equality 
-            	
-            	if( property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.BooleanLiteral")       ||
-            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.CharacterLiteral") ||
-            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.NumberLiteral")    ||
-            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.StringLiteral")    ||
-            			property.getNodeClass().toString().split(" ")[1].equals("org.eclipse.jdt.core.dom.TypeLiteral")) {
-            		
-            	
-            		
-            	}
-            		
-       	
-                if (!leftVal.equals(rightVal)) {
-                    return false;
-                }
-            } else if (property.isChildProperty()) {
-                // recursively call this function on child nodes
-                if (!equals((ASTNode) leftVal, (ASTNode) rightVal)) {
-                    return false;
-                }
-            } else if (property.isChildListProperty()) {
 
-				Iterator<ASTNode> leftValIt = ((Iterable<ASTNode>) leftVal)
-                        .iterator();
-				Iterator<ASTNode> rightValIt = ((Iterable<ASTNode>) rightVal)
-                        .iterator();
-                while (leftValIt.hasNext() && rightValIt.hasNext()) {
-                    // recursively call this function on child nodes
-                    if (!equals(leftValIt.next(), rightValIt.next())) {
-                        return false;
-                    }
-                }
-                // one of the value lists have additional elements
-                if (leftValIt.hasNext() || rightValIt.hasNext()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+
+	@SuppressWarnings("unchecked")
+	private List<List<ASTNode>>  getDiffs(List<ASTNode> nodes) {
+		//ASTNode left, ASTNode right) {
+		List<List<ASTNode>> diffExprs = 
+				new ArrayList<List<ASTNode>>();
+
+		//		    List<StructuralPropertyDescriptor> props = left
+		//	                .structuralPropertiesForType();
+
+		List<StructuralPropertyDescriptor> props = nodes.get(0)
+				.structuralPropertiesForType();
+
+
+		for (StructuralPropertyDescriptor property : props) {
+
+			List<ASTNode> diff = new ArrayList<ASTNode>();
+
+			List<Object> strucProps = new ArrayList<Object>();
+
+			for(ASTNode node: nodes) {
+				strucProps.add(node.getStructuralProperty(property));
+			}
+
+			if (property.isSimpleProperty()) {
+				// check for simple properties (primitive types, Strings, ...)
+				// with normal equality
+
+				if(nodes.get(0) instanceof BooleanLiteral        ||
+						nodes.get(0) instanceof CharacterLiteral ||
+						nodes.get(0) instanceof NumberLiteral    ||
+						nodes.get(0) instanceof StringLiteral    ||
+						nodes.get(0) instanceof TypeLiteral) {
+
+
+					if(!strucProps.stream().allMatch(strucProps.get(0)::equals)){
+						System.out.println("_______________________________SIMPLE PROPERTY_______________________________");
+						for(ASTNode node: nodes) {
+							System.out.println("[CCRefactoring      ---      checkCloneType]   " + node);
+							System.out.println("[CCRefactoring      ---      checkCloneType]   Class  ->  " + node.getClass());
+						}
+						System.out.println("______________________________________________________________________________");
+
+						for(ASTNode node: nodes) {
+							diff.add(node);
+						}
+					}
+
+				}
+
+
+			} else if (property.isChildProperty()) {
+				// recursively call this function on child nodes
+
+				List<ASTNode> newNodes = strucProps.stream()
+						.map(element->(ASTNode) element)
+						.collect(Collectors.toList());
+
+
+				if(!newNodes.contains(null)) {
+					diffExprs.addAll(getDiffs(newNodes));
+				}
+
+				//                	if(leftVal != null && rightVal != null)
+				//						diffExprs.addAll(getDiffs((ASTNode) leftVal, (ASTNode) rightVal));
+
+			} else if (property.isChildListProperty()) {
+
+
+				List<Iterator<ASTNode>> iterators  = strucProps.stream()
+						.map(element-> ((Iterable<ASTNode>) element).iterator())
+						.collect(Collectors.toList());
+
+				while (iterators.stream().allMatch(Iterator::hasNext)) {
+					// recursively call this function on child nodes
+
+					List<ASTNode> newNodes  = iterators.stream()
+							.map(element->element.next())
+							.collect(Collectors.toList());
+
+
+
+					diffExprs.addAll(getDiffs(newNodes));
+
+				}
+
+
+
+				//	                Iterator<ASTNode> leftValIt = ((Iterable<ASTNode>) leftVal)
+				//	                        .iterator();
+				//	                Iterator<ASTNode> rightValIt = ((Iterable<ASTNode>) rightVal)
+				//	                        .iterator();
+				//	                while (leftValIt.hasNext() && rightValIt.hasNext()) {
+				//	                    // recursively call this function on child nodes
+				//	                	diffExprs.addAll(getDiffs(leftValIt.next(), rightValIt.next()));
+				//						
+				//	                }
+			}
+		}
+		return diffExprs;
+	}
+
+
 
 	public abstract void apply()  throws UnsuccessfulRefactoringException;
 

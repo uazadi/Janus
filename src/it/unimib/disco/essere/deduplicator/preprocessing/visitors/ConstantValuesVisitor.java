@@ -53,7 +53,7 @@ public class ConstantValuesVisitor extends CustomAstVisitor {
 				public boolean visit(NumberLiteral cons) {
 					values.add(cons.toString());
 				
-					//System.out.println("number: "  +  cons);	
+					System.out.println("number: "  +  cons);	
 					//cons.setToken("0");
 					return false;
 				}
@@ -61,7 +61,7 @@ public class ConstantValuesVisitor extends CustomAstVisitor {
 				public boolean visit(StringLiteral cons) {
 					values.add(cons.toString());
 					
-					//System.out.println("String: "  +  cons);
+					System.out.println("String: "  +  cons);
 					//cons.setLiteralValue(newValue);
 					return false;
 				}
