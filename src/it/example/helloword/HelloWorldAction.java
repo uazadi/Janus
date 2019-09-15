@@ -1,12 +1,16 @@
 package it.example.helloword;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.List;
 
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.action.Action;
@@ -17,6 +21,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
+import it.unimib.disco.essere.deduplicator.behaviouralcheck.CheckCompilation;
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.MethodHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.PreprocessingFacade;
@@ -48,6 +53,56 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				selectedProject = projectTmp.getJavaProject();
 			}
 			accomplishRefactoring(selectedProject);
+			//new CheckCompilation().check(selectedProject);
+
+			try {
+				System.out.println("Output location: " + selectedProject.getOutputLocation());
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			executeCommand("rm -r ./test ");
+			executeCommand("cp -r Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin ./ ");
+			executeCommand("java test.TestRun");
+			
+		}
+	}
+
+	private void executeCommand(String command) {
+		Process p = null;
+		try {
+			System.out.println("____________Command processed:  " + command);
+			
+			p = Runtime.getRuntime().exec(command);
+			
+			//System.out.println("toString: " + p.getOutputStream());
+			
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				System.out.println(line);
+			}
+			
+			BufferedReader in2 = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+			String line2 = null;
+			while ((line2 = in2.readLine()) != null) {
+				System.out.println(line2);
+			}
+			
+
+			p.waitFor();
+			
+			System.out.println("Exit value: " + p.exitValue());
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -69,7 +124,7 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 					CCRefactoring.selectRefactoringTechniques(ih, p, project);
 			for(CCRefactoring ccr: refactorings)
 				ccr.apply();
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
