@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.internal.resources.Project;
@@ -55,6 +56,7 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
 import it.unimib.disco.essere.deduplicator.behaviouralcheck.CheckCompilation;
+import it.unimib.disco.essere.deduplicator.behaviouralcheck.JUnitCheck;
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.MethodHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.PreprocessingFacade;
@@ -101,255 +103,21 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			executeCommand("cp -r Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin ./ ");
 			executeCommand("java test.TestRun");
 
+			JUnitCheck junitCheck = new JUnitCheck(selectedProject);
+			Map<IType, Boolean> junitClasses = null;
 			try {
-				Set<IType> retVal3 =  new HashSet<IType>();
-				new JUnit3TestFinder().findTestsInContainer(selectedProject, retVal3, null);
-				System.out.println("JUnit3TestFinder " + retVal3.size());
-
-				Set<IType> retVal4 =  new HashSet<IType>();
-				new JUnit4TestFinder().findTestsInContainer(selectedProject, retVal4, null);
-				System.out.println("JUnit4TestFinder " + retVal4.size());
-
-				Set<IType> retVal5 =  new HashSet<IType>();
-				new JUnit5TestFinder().findTestsInContainer(selectedProject, retVal5, null);
-				System.out.println("JUnit5TestFinder " + retVal5.size());
-
-				IType[] retVal4arr = new IType[retVal4.size()];
-				retVal5.toArray(retVal4arr);
-				System.out.println("retVal5arr[0].getClass() ==== " + retVal4arr[4].getClass());
-				System.out.println("retVal5arr[0].getElementName() ==== " + retVal4arr[4].getFullyQualifiedName());
-
-				String name = retVal4arr[4].getFullyQualifiedName();
-				String path = retVal4arr[4].getFullyQualifiedName().replace(".", "/");
-				System.out.println("Fully Qualified Name: " + name);
-				System.out.println("Path: " + path);
-
-				ICompilationUnit anUnit = selectedProject.findType(retVal4arr[4].getFullyQualifiedName()).getCompilationUnit();
-
-
-				//Class<?> act = null;
-				//				try {
-				//
-				//					//					System.out.println("Bundle ID:" + Activator.getDefault());
-				//					//					
-				//					//					String bundleID =  Activator.getDefault().getBundleId(selectedProject);
-				//					//					act = Activator.getDefault().getBundle(bundleID).loadClass(name);
-				//
-				//					//Platform.get
-				//
-				//
-				//					
-				//					
-				//					for(IClasspathEntry cpe: selectedProject.getResolvedClasspath(true)){
-				//						System.out.println("ipfr.getPath():   " + cpe.getPath());
-				//					}
-				//					
-				////					for(IPackageFragmentRoot ipfr: selectedProject.getPackageFragmentRoots()) {
-				////						System.out.println("ipfr.getPath():   " + ipfr.getPath());
-				////					}
-				//					
-				//					
-				//					System.out.println("ICompilationUnit element name:  " + anUnit.getElementName());
-				//
-				//					//String path = anUnit.getPath();
-				//					
-				//					String unitPath = anUnit.getResource().getProject().getLocationURI().toString();
-				//					URL binURI = null;
-				//					try {
-				//						binURI = new URL(unitPath + "/target/test-classes/");
-				//					} catch (MalformedURLException e) {
-				//						// TODO Auto-generated catch block
-				//						e.printStackTrace();
-				//					}
-				//					
-				//					Image image = JavaPlugin.getImageDescriptorRegistry().get(JavaPluginImages.DESC_OBJS_TEST_CASE);
-				//					
-				//					List<URL> urls = new ArrayList<URL>();
-				//							//new URL[selectedProject.getResolvedClasspath(true).length + 1];
-				//					
-				//					urls.add(binURI);
-				//					for(IClasspathEntry cpe: selectedProject.getResolvedClasspath(true)) {
-				//						try {
-				//							urls.add(new URL(cpe.toString()));
-				//						} catch (MalformedURLException e) {}
-				//					}
-				//
-				//					System.out.println("[ClientProjectClassLoader] binURI: " + binURI.getPath());
-				//					
-				//					URL[] arrUrls = new URL[urls.size()];
-				//					URLClassLoader innerCL = new URLClassLoader(urls.toArray(arrUrls));
-				//					
-				//					System.out.println("[ClientProjectClassLoader] binURI: " + innerCL);
-				//					
-				//					System.out.println("[ClientProjectClassLoader] innerCL find resource: " + innerCL.findResource(name));
-				//					
-				//					act = innerCL.loadClass(name);
-				//					
-				//					
-				//					//ClientProjectClassLoader cpcl = new ClientProjectClassLoader(anUnit);
-				//					//,  Activator.getDefault().getDescriptor().getPluginClassLoader()
-				//
-				//					//act = cpcl.loadClass(name);
-				//
-				//				} catch (ClassNotFoundException e) {
-				//					// TODO Auto-generated catch block
-				//					e.printStackTrace();
-				//				} 
-				//
-				//				//				 try {
-				//				//					    act = Class.forName(retVal4arr[4].getFullyQualifiedName());
-				//				//					 } catch (ClassNotFoundException e) {
-				//				//					        e.printStackTrace();
-				//				//					}
-				//
-				//
-				//				Result a = 
-				//						//JUnitCore.runClasses(retVal4arr[3].getClass());
-				//						//new JUnitCore().run(retVal4arr[3].getClass());
-				//						//new JUnitCore().run(new Computer(), new ClassRequest(retVal4arr[3].getClass()));
-				//						//new JUnitCore().run(new Computer(), retVal4arr[3].getClass());
-				//						new JUnitCore().run(new Computer(), act);
-				//
-				//				System.out.println("Was succesfull? " + a.wasSuccessful());
-				//				for(Failure f: a.getFailures()) {
-				//					System.out.println("[MESSAGE] " + f.getMessage());
-				//					System.out.println("[DESCRIPTION] " + f.getDescription());
-				//					System.out.println("[EXCEPTION] ");
-				//					f.getException().printStackTrace();
-				//				}
-
-				// ATTEMPT ONE
-				Class<?> act = null;
-				try {
-
-					//					System.out.println("Bundle ID:" + Activator.getDefault());
-					//					
-					//					String bundleID =  Activator.getDefault().getBundleId(selectedProject);
-					//					act = Activator.getDefault().getBundle(bundleID).loadClass(name);
-
-					//Platform.get
-
-
-					//ICompilationUnit anUnit = selectedProject.findType(retVal4arr[4].getFullyQualifiedName()).getCompilationUnit();
-
-					for(IClasspathEntry cpe: selectedProject.getResolvedClasspath(true)){
-						System.out.println("ipfr.getPath():   " + cpe.getPath());
-					}
-
-					//					for(IPackageFragmentRoot ipfr: selectedProject.getPackageFragmentRoots()) {
-					//						System.out.println("ipfr.getPath():   " + ipfr.getPath());
-					//					}
-
-
-					System.out.println("ICompilationUnit element name:  " + anUnit.getElementName());
-
-					//String path = anUnit.getPath();
-					
-					
-					
-					String unitPath = anUnit.getResource().getProject().getLocationURI().toString();
-					URL binURI = null;
-					try {
-						binURI = new URL(unitPath + "/target/test-classes/");
-					} catch (MalformedURLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					
-					//
-					//					Image image = JavaPlugin.getImageDescriptorRegistry().get(JavaPluginImages.DESC_OBJS_TEST_CASE);
-					//
-					//					List<URL> urls = new ArrayList<URL>();
-					//					//new URL[selectedProject.getResolvedClasspath(true).length + 1];
-					//
-					//					urls.add(binURI);
-					//					for(IClasspathEntry cpe: selectedProject.getResolvedClasspath(true)) {
-					//						try {
-					//							urls.add(new URL(cpe.toString()));
-					//						} catch (MalformedURLException e) {}
-					//					}
-					//
-					//					System.out.println("[ClientProjectClassLoader] binURI: " + binURI.getPath());
-					//
-					//					URL[] arrUrls = new URL[urls.size()];
-					//
-					//					File f = new File(unitPath + "/target/test-classes/");
-					//
-					//
-					//					URLClassLoader innerCL = new URLClassLoader(new URL[]{binURI}, this.getClass().getClassLoader());
-
-
-					String[] classPathEntries = JavaRuntime.computeDefaultRuntimeClassPath(selectedProject);
-					List<URL> urlList = new ArrayList<URL>();
-					urlList.add(binURI);
-					for (int i = 0; i < classPathEntries.length; i++) {
-						String entry = classPathEntries[i];
-
-						System.out.println("classPathEntries:  " + entry);
-
-						IPath iPath = new Path(entry);
-						URL url;
-						try {
-							url = iPath.toFile().toURI().toURL();
-							urlList.add(url);
-						} catch (MalformedURLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-
-					}
-					ClassLoader parentClassLoader = this.getClass().getClassLoader();
-					URL[] urls = (URL[]) urlList.toArray(new URL[urlList.size()]);
-					URLClassLoader innerCL = new URLClassLoader(urls, parentClassLoader);
-
-
-					//URLClassLoader innerCL = new URLClassLoader(urls.toArray(arrUrls));
-
-					System.out.println("[ClientProjectClassLoader] binURI: " + innerCL);
-
-					System.out.println("[ClientProjectClassLoader] innerCL find resource: " + innerCL.findResource(name));
-
-					act = innerCL.loadClass(name);
-
-
-					//ClientProjectClassLoader cpcl = new ClientProjectClassLoader(anUnit);
-					//,  Activator.getDefault().getDescriptor().getPluginClassLoader()
-
-					//act = cpcl.loadClass(name);
-
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-
-				//				 try {
-				//					    act = Class.forName(retVal4arr[4].getFullyQualifiedName());
-				//					 } catch (ClassNotFoundException e) {
-				//					        e.printStackTrace();
-				//					}
-
-
-				Result a = 
-						//JUnitCore.runClasses(retVal4arr[3].getClass());
-						//new JUnitCore().run(retVal4arr[3].getClass());
-						//new JUnitCore().run(new Computer(), new ClassRequest(retVal4arr[3].getClass()));
-						//new JUnitCore().run(new Computer(), retVal4arr[3].getClass());
-						new JUnitCore().run(act);
-
-				System.out.println("Was succesfull? " + a.wasSuccessful());
-				for(Failure f: a.getFailures()) {
-					System.out.println("[MESSAGE] " + f.getMessage());
-					System.out.println("[DESCRIPTION] " + f.getDescription());
-					System.out.println("[EXCEPTION] ");
-					f.getException().printStackTrace();
+				junitClasses = junitCheck.findJunitClasses();
+				for(IType junitClass: junitClasses.keySet()) {
+					if(!junitClass.getElementName().equals("TestCrossValidation"))
+						junitClasses.replace(junitClass, false);
 				}
-
 			} catch (CoreException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+			junitCheck.setJunitClasses(junitClasses);
+			
+			junitCheck.run();
 		}
 	}
 

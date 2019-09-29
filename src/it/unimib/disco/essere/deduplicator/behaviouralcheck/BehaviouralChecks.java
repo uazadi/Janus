@@ -3,10 +3,29 @@ package it.unimib.disco.essere.deduplicator.behaviouralcheck;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.junit.launcher.JUnit3TestFinder;
+import org.eclipse.jdt.internal.junit.launcher.JUnit4TestFinder;
+import org.eclipse.jdt.internal.junit.launcher.JUnit5TestFinder;
+import org.eclipse.jdt.launching.JavaRuntime;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 
 public class BehaviouralChecks {
 	
@@ -35,6 +54,7 @@ public class BehaviouralChecks {
 		executeCommand("java test.TestRun");
 		return false;
 	}
+
 	
 	private void executeCommand(String command) {
 		Process p = null;
