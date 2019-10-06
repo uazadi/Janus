@@ -22,6 +22,11 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.Launch;
+import org.eclipse.debug.internal.core.LaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -38,7 +43,10 @@ import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.wizards.NewTypeDropDownAction;
 import org.eclipse.jdt.internal.ui.wizards.NewTypeDropDownAction.OpenTypeWizardAction;
+import org.eclipse.jdt.launching.IVMInstall;
+import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -99,6 +107,33 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				e.printStackTrace();
 			}
 
+			new DebugPlugin();
+			System.out.println("DebugPlugin.getDefault():  " + DebugPlugin.getDefault());
+			
+
+			IVMInstall vm;
+			try {
+				//vm = JavaRuntime.getVMInstall(selectedProject);
+				vm = JavaRuntime.getDefaultVMInstall (); 
+				if (vm == null) {
+					System.out.println("______________________________________________________________AAAAAAAAAAAAAAAaa");
+					vm = JavaRuntime.getDefaultVMInstall (); 
+				}
+				IVMRunner vmr = vm.getVMRunner (ILaunchManager.RUN_MODE);
+				String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (selectedProject);
+				VMRunnerConfiguration config = new VMRunnerConfiguration ("test.TestRun", cp);
+				//String[] args = { url, usr, pwd, String.valueOf (jmes), String.valueOf (cal), String.valueOf (jpm), String.valueOf (hmi), String.valueOf (prc), String.valueOf (others), String.valueOf (tst) };
+				config.setProgramArguments (new String[0]);
+				ILaunch launch = new Launch (null, ILaunchManager.RUN_MODE, null);
+				vmr.run (config, launch, null);
+			} catch (CoreException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+
+
+
 			executeCommand("rm -r ./test ");
 			executeCommand("cp -r Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin ./ ");
 			executeCommand("java test.TestRun");
@@ -116,7 +151,7 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				e.printStackTrace();
 			}
 			junitCheck.setJunitClasses(junitClasses);
-			
+
 			junitCheck.run();
 		}
 	}

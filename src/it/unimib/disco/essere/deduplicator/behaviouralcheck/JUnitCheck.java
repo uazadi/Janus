@@ -16,8 +16,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.internal.junit.launcher.JUnit3TestFinder;
-import org.eclipse.jdt.internal.junit.launcher.JUnit4TestFinder;
+import org.eclipse.jdt.internal.junit.launcher.ITestFinder;
 import org.eclipse.jdt.internal.junit.launcher.JUnit5TestFinder;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.junit.runner.JUnitCore;
@@ -42,31 +41,28 @@ public class JUnitCheck {
 		this.junitClasses = junitClasses;
 	}
 
-	public Map<IType, Boolean> findJunitClasses() throws CoreException{
-		//		Set<IType> retVal3 =  new HashSet<IType>();
-		//		new JUnit3TestFinder().findTestsInContainer(selectedProject, retVal3, null);
-		//		System.out.println("JUnit3TestFinder " + retVal3.size());
-
-		//		Set<IType> retVal4 =  new HashSet<IType>();
-		//		new JUnit4TestFinder().findTestsInContainer(selectedProject, retVal4, null);
-		//		System.out.println("JUnit4TestFinder " + retVal4.size());
-
+	/**
+	 * @param finder allows to specify the version of JUnit to be used: 
+	 * 				new JUnit3TestFinder(), new JUnit4TestFinder() 
+	 * 				or new JUnit5TestFinder().
+	 * @return the map in which the keys are all the test classes found and
+	 * 			the value allows to specify if each class has to be used (true) 
+	 * 			or not (false) during the behavioral check.
+	 * @throws CoreException
+	 */
+	public Map<IType, Boolean> findJunitClasses(ITestFinder finder) throws CoreException{
 		Set<IType> junits =  new HashSet<IType>();
-		new JUnit5TestFinder().findTestsInContainer(selectedProject, junits, null);
+		finder.findTestsInContainer(selectedProject, junits, null);
 
 		for(IType junitClass: junits) {
 			junitClasses.put(junitClass, true);
 		}
 
 		return junitClasses;
-
-
-
-		//		IType[] retVal4arr = new IType[junits.size()];
-		//		junits.toArray(retVal4arr);
-
-		//		String name = retVal4arr[4].getFullyQualifiedName();
-		//		System.out.println("Fully Qualified Name: " + name);
+	}
+	
+	public Map<IType, Boolean> findJunitClasses() throws CoreException{
+		return findJunitClasses(new JUnit5TestFinder());
 	}
 
 	public void run() {
@@ -101,6 +97,8 @@ public class JUnitCheck {
 
 					Class<?> act = classLoader.loadClass(name);
 
+
+					
 					Result a = new JUnitCore().run(act);
 
 					System.out.println("Was succesfull? " + a.wasSuccessful());
