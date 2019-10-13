@@ -22,10 +22,12 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.Launch;
+import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.internal.core.LaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -107,36 +109,55 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				e.printStackTrace();
 			}
 
-			new DebugPlugin();
-			System.out.println("DebugPlugin.getDefault():  " + DebugPlugin.getDefault());
-			
 
 			IVMInstall vm;
+			ILaunch launch = null;
 			try {
-				//vm = JavaRuntime.getVMInstall(selectedProject);
-				vm = JavaRuntime.getDefaultVMInstall (); 
-				if (vm == null) {
-					System.out.println("______________________________________________________________AAAAAAAAAAAAAAAaa");
-					vm = JavaRuntime.getDefaultVMInstall (); 
-				}
+				vm = JavaRuntime.getVMInstall(selectedProject);
+				//vm = JavaRuntime.getDefaultVMInstall (); 
+//				if (vm == null) {
+//					vm = JavaRuntime.getDefaultVMInstall (); 
+//				}
 				IVMRunner vmr = vm.getVMRunner (ILaunchManager.RUN_MODE);
 				String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (selectedProject);
-				VMRunnerConfiguration config = new VMRunnerConfiguration ("test.TestRun", cp);
-				//String[] args = { url, usr, pwd, String.valueOf (jmes), String.valueOf (cal), String.valueOf (jpm), String.valueOf (hmi), String.valueOf (prc), String.valueOf (others), String.valueOf (tst) };
-				config.setProgramArguments (new String[0]);
-				ILaunch launch = new Launch (null, ILaunchManager.RUN_MODE, null);
+
+				for(String x: cp)
+					System.out.println("Cp__________________________ " + x);
+
+				VMRunnerConfiguration config = new VMRunnerConfiguration("test.TestRun", cp);
+				
+				String[] args = {"java", "test.TestRun"};
+				config.setProgramArguments (args);
+				launch = new Launch (null, ILaunchManager.RUN_MODE, null);
 				vmr.run (config, launch, null);
 			} catch (CoreException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+			    
+
+			try {
+				for(IProcess a: launch.getProcesses()) {
+					while(!a.isTerminated()) {
+						Thread.sleep(250);
+						System.out.println("WAIT THE PROCESS!");
+					}
+					System.out.println("Exit value:   " + a.getExitValue());
+					System.out.println("Error Stream  " + a.getStreamsProxy().getErrorStreamMonitor().getContents());
+					System.out.println("Output Stream " + a.getStreamsProxy().getOutputStreamMonitor().getContents());
+				}
+			} catch (DebugException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 
-
-
-			executeCommand("rm -r ./test ");
-			executeCommand("cp -r Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin ./ ");
-			executeCommand("java test.TestRun");
+			//			executeCommand("rm -r ./test ");
+			//			executeCommand("cp -r Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin ./ ");
+			//			executeCommand("java test.TestRun");
 
 			JUnitCheck junitCheck = new JUnitCheck(selectedProject);
 			Map<IType, Boolean> junitClasses = null;
