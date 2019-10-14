@@ -122,9 +122,9 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			try {
 				vm = JavaRuntime.getVMInstall(selectedProject);
 				//vm = JavaRuntime.getDefaultVMInstall (); 
-//				if (vm == null) {
-//					vm = JavaRuntime.getDefaultVMInstall (); 
-//				}
+				//				if (vm == null) {
+				//					vm = JavaRuntime.getDefaultVMInstall (); 
+				//				}
 				IVMRunner vmr = vm.getVMRunner (ILaunchManager.RUN_MODE);
 				String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (selectedProject);
 
@@ -132,42 +132,52 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 					System.out.println("Cp__________________________ " + x);
 
 				VMRunnerConfiguration config = new VMRunnerConfiguration("test.TestRun", cp);
-				
-				String[] env = {"CLASSPATH=" + cp[0]};
-				config.setEnvironment(env);
-				
-				config.setModulepath(env);
-				
+
+				//				String[] env = {"CLASSPATH=" + cp[0]};
+				//				config.setEnvironment(env);
+
+				//config.setModulepath(env);
+
 				String[] args = {};//{"java", "test.TestRun"};
 				config.setProgramArguments (args);
 				launch = new Launch (null, ILaunchManager.RUN_MODE, null);
-				vmr.run (config, launch, null);
-				
+				//vmr.run (config, launch, null);
+
 				//executeCommand("ls");
+
+				String s = vmr.showCommandLine(config, launch, new NullProgressMonitor());
 				
-//				String s = vmr.showCommandLine(config, launch, new NullProgressMonitor());
-//				launch.terminate();
-//				
-			executeCommand("/usr/lib/jvm/java-11-openjdk-amd64/bin/java -classpath /home/uazadi/Documents/Tesi/testing_systems/runtime-EclipseApplication/TestHierarchyRefactoring/bin test.TestRun");
-			//executeCommand("/usr/lib/jvm/java-11-openjdk-amd64/bin/java -classpath /home/uazadi/Documents/Tesi/testing_systems/runtime-EclipseApplication/TestHierarchyRefactoring/bin test.");
-//				System.out.println("String showCommandLine:  " + s);
-				
+				Thread.sleep(250);
+
+				executeCommand(s);
+
+				System.out.println(s);
+				//			
+				//executeCommand("/usr/lib/jvm/java-8-oracle/bin/java -classpath /home/umberto/Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin test.Subclass2");
+				//executeCommand("/usr/lib/jvm/java-8-oracle/bin/java -classpath /home/umberto/Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin test.TestRun");
+				//				System.out.println("String showCommandLine:  " + s);
+
 			} catch (CoreException e1) {
 				e1.printStackTrace();
 			}
-//			
+			//			
 			//System.out.println("Lanch Process size:  " + launch.getProcesses().length);
-			
-//			while(!launch.isTerminated()) {
-//				try {
-//					Thread.sleep(250);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//				System.out.println("WAIT THE Launch!");
-//			}
-			    
-//
+ catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			//			while(!launch.isTerminated()) {
+			//				try {
+
+			//					Thread.sleep(250);
+			//				} catch (InterruptedException e) {
+			//					e.printStackTrace();
+			//				}
+			//				System.out.println("WAIT THE Launch!");
+			//			}
+
+			//
 			try {
 				for(IProcess a: launch.getProcesses()) {
 					while(!a.isTerminated()) {
@@ -210,11 +220,28 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 	}
 
 	private void executeCommand(String command) {
-		
+
 		Process p;
 		try {
 			p = new ProcessBuilder(command.split(" ")).start();
 			final int retval = p.waitFor();
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(p.getInputStream()));
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				System.out.println("$$" + line);
+			}
+
+			BufferedReader in2 = new BufferedReader(
+					new InputStreamReader(p.getErrorStream()));
+			String line2 = null;
+			while ((line2 = in2.readLine()) != null) {
+				System.out.println("!!" + line2);
+			}
+
+
+			p.waitFor();
+
 			System.out.println(">>>Exit value: " + p.exitValue());
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -223,55 +250,55 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		CommandLine commandLine = CommandLine.parse(command);
-		DefaultExecutor executor = new DefaultExecutor();
-		try {
-			int exitValue = executor.execute(commandLine);
-			System.out.println("+++++Exit value: " + exitValue);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-//		Process p = null;
+
+
+//		CommandLine commandLine = CommandLine.parse(command);
+//		DefaultExecutor executor = new DefaultExecutor();
 //		try {
-//			System.out.println("____________Command processed:  " + command);
-//
-//			p = Runtime.getRuntime().exec(command.split(" "));
-//
-//			//System.out.println("toString: " + p.getOutputStream());
-//
-//			BufferedReader in = new BufferedReader(
-//					new InputStreamReader(p.getInputStream()));
-//			String line = null;
-//			while ((line = in.readLine()) != null) {
-//				System.out.println("$$" + line);
-//			}
-//
-//			BufferedReader in2 = new BufferedReader(
-//					new InputStreamReader(p.getErrorStream()));
-//			String line2 = null;
-//			while ((line2 = in2.readLine()) != null) {
-//				System.out.println("!!" + line2);
-//			}
-//
-//
-//			p.waitFor();
-//
-//			System.out.println(">>>Exit value: " + p.exitValue());
-//			
-//			
+//			int exitValue = executor.execute(commandLine);
+//			System.out.println("+++++Exit value: " + exitValue);
 //		} catch (IOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
 //		}
+
+
+
+		//		Process p = null;
+		//		try {
+		//			System.out.println("____________Command processed:  " + command);
+		//
+		//			p = Runtime.getRuntime().exec(command.split(" "));
+		//
+		//			//System.out.println("toString: " + p.getOutputStream());
+		//
+		//			BufferedReader in = new BufferedReader(
+		//					new InputStreamReader(p.getInputStream()));
+		//			String line = null;
+		//			while ((line = in.readLine()) != null) {
+		//				System.out.println("$$" + line);
+		//			}
+		//
+		//			BufferedReader in2 = new BufferedReader(
+		//					new InputStreamReader(p.getErrorStream()));
+		//			String line2 = null;
+		//			while ((line2 = in2.readLine()) != null) {
+		//				System.out.println("!!" + line2);
+		//			}
+		//
+		//
+		//			p.waitFor();
+		//
+		//			System.out.println(">>>Exit value: " + p.exitValue());
+		//
+		//
+		//		} catch (IOException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		} catch (InterruptedException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 	}
 
 	private void accomplishRefactoring(IJavaProject project) {
