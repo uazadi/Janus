@@ -23,13 +23,12 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
-public class JUnitCheck {
+public class JUnitCheck extends BehaviouralCheck {
 
-	private IJavaProject selectedProject;
 	private Map<IType, Boolean> junitClasses;
 
 	public JUnitCheck(IJavaProject selectedProject) {
-		this.selectedProject = selectedProject;
+		super(selectedProject);
 		junitClasses = new HashMap<IType, Boolean>();
 	}
 	
@@ -65,7 +64,7 @@ public class JUnitCheck {
 		return findJunitClasses(new JUnit5TestFinder());
 	}
 
-	public void run() {
+	public boolean run() {
 
 		for(IType junitClass: this.junitClasses.keySet()) {
 			
@@ -96,24 +95,28 @@ public class JUnitCheck {
 					URLClassLoader classLoader = new URLClassLoader(urls, parentClassLoader);
 
 					Class<?> act = classLoader.loadClass(name);
-
-
 					
-					Result a = new JUnitCore().run(act);
+					Result result = new JUnitCore().run(act);
 
-					System.out.println("Was succesfull? " + a.wasSuccessful());
-					for(Failure f: a.getFailures()) {
+					System.out.println("Was succesfull? " + result.wasSuccessful());
+					for(Failure f: result.getFailures()) {
 						System.out.println("[MESSAGE] " + f.getMessage());
 						System.out.println("[DESCRIPTION] " + f.getDescription());
 						System.out.println("[EXCEPTION] ");
 						f.getException().printStackTrace();
 					}
+					
+					if(!result.wasSuccessful())
+						return false;
 
 				} catch (CoreException | MalformedURLException | ClassNotFoundException e) {
 					System.out.println("[JUnitCheck] Error JUnit Class " + name);
 				}
+				
 			}
 		}
+		
+		return true;
 	}
 
 

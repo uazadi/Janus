@@ -74,6 +74,7 @@ import org.junit.runner.notification.Failure;
 
 import it.unimib.disco.essere.deduplicator.behaviouralcheck.CheckCompilation;
 import it.unimib.disco.essere.deduplicator.behaviouralcheck.JUnitCheck;
+import it.unimib.disco.essere.deduplicator.behaviouralcheck.MainClassCheck;
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.MethodHandler;
 import it.unimib.disco.essere.deduplicator.preprocessing.PreprocessingFacade;
@@ -106,100 +107,19 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				JavaProject projectTmp = (JavaProject) firstElement;
 				selectedProject = projectTmp.getJavaProject();
 			}
-			//accomplishRefactoring(selectedProject);
-			new CheckCompilation().check(selectedProject);
-
+			accomplishRefactoring(selectedProject);
+			
 			try {
-				System.out.println("Output location: " + selectedProject.getOutputLocation());
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-
-			IVMInstall vm;
-			ILaunch launch = null;
-			try {
-				vm = JavaRuntime.getVMInstall(selectedProject);
-				//vm = JavaRuntime.getDefaultVMInstall (); 
-				//				if (vm == null) {
-				//					vm = JavaRuntime.getDefaultVMInstall (); 
-				//				}
-				IVMRunner vmr = vm.getVMRunner (ILaunchManager.RUN_MODE);
-				String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (selectedProject);
-
-				for(String x: cp)
-					System.out.println("Cp__________________________ " + x);
-
-				VMRunnerConfiguration config = new VMRunnerConfiguration("test.TestRun", cp);
-
-				//				String[] env = {"CLASSPATH=" + cp[0]};
-				//				config.setEnvironment(env);
-
-				//config.setModulepath(env);
-
-				String[] args = {};//{"java", "test.TestRun"};
-				config.setProgramArguments (args);
-				launch = new Launch (null, ILaunchManager.RUN_MODE, null);
-				//vmr.run (config, launch, null);
-
-				//executeCommand("ls");
-
-				String s = vmr.showCommandLine(config, launch, new NullProgressMonitor());
-				
-				Thread.sleep(250);
-
-				executeCommand(s);
-
-				System.out.println(s);
-				//			
-				//executeCommand("/usr/lib/jvm/java-8-oracle/bin/java -classpath /home/umberto/Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin test.Subclass2");
-				//executeCommand("/usr/lib/jvm/java-8-oracle/bin/java -classpath /home/umberto/Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin test.TestRun");
-				//				System.out.println("String showCommandLine:  " + s);
-
-			} catch (CoreException e1) {
+				selectedProject.save(null, true);
+			} catch (JavaModelException e1) {
 				e1.printStackTrace();
 			}
-			//			
-			//System.out.println("Lanch Process size:  " + launch.getProcesses().length);
- catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+			new CheckCompilation().check(selectedProject);
 
-			//			while(!launch.isTerminated()) {
-			//				try {
-
-			//					Thread.sleep(250);
-			//				} catch (InterruptedException e) {
-			//					e.printStackTrace();
-			//				}
-			//				System.out.println("WAIT THE Launch!");
-			//			}
-
-			//
-			try {
-				for(IProcess a: launch.getProcesses()) {
-					while(!a.isTerminated()) {
-						Thread.sleep(250);
-						System.out.println("WAIT THE PROCESS!");
-					}
-					System.out.println("Exit value:   " + a.getExitValue());
-					System.out.println("Error Stream  " + a.getStreamsProxy().getErrorStreamMonitor().getContents());
-					System.out.println("Output Stream " + a.getStreamsProxy().getOutputStreamMonitor().getContents());
-				}
-			} catch (DebugException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-
-			//			executeCommand("rm -r ./test ");
-			//			executeCommand("cp -r Desktop/Tesi/runtime-EclipseApplication/TestHierarchyRefactoring/bin ./ ");
-			//			executeCommand("java test.TestRun");
+			
+			MainClassCheck mainCheck = new MainClassCheck(selectedProject);
+			mainCheck.run();
 
 			JUnitCheck junitCheck = new JUnitCheck(selectedProject);
 			Map<IType, Boolean> junitClasses = null;
@@ -213,93 +133,14 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 			junitCheck.setJunitClasses(junitClasses);
 
 			junitCheck.run();
 		}
 	}
 
-	private void executeCommand(String command) {
-
-		Process p;
-		try {
-			p = new ProcessBuilder(command.split(" ")).start();
-			final int retval = p.waitFor();
-			BufferedReader in = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-			String line = null;
-			while ((line = in.readLine()) != null) {
-				System.out.println("$$" + line);
-			}
-
-			BufferedReader in2 = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-			String line2 = null;
-			while ((line2 = in2.readLine()) != null) {
-				System.out.println("!!" + line2);
-			}
-
-
-			p.waitFor();
-
-			System.out.println(">>>Exit value: " + p.exitValue());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-
-//		CommandLine commandLine = CommandLine.parse(command);
-//		DefaultExecutor executor = new DefaultExecutor();
-//		try {
-//			int exitValue = executor.execute(commandLine);
-//			System.out.println("+++++Exit value: " + exitValue);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-
-
-		//		Process p = null;
-		//		try {
-		//			System.out.println("____________Command processed:  " + command);
-		//
-		//			p = Runtime.getRuntime().exec(command.split(" "));
-		//
-		//			//System.out.println("toString: " + p.getOutputStream());
-		//
-		//			BufferedReader in = new BufferedReader(
-		//					new InputStreamReader(p.getInputStream()));
-		//			String line = null;
-		//			while ((line = in.readLine()) != null) {
-		//				System.out.println("$$" + line);
-		//			}
-		//
-		//			BufferedReader in2 = new BufferedReader(
-		//					new InputStreamReader(p.getErrorStream()));
-		//			String line2 = null;
-		//			while ((line2 = in2.readLine()) != null) {
-		//				System.out.println("!!" + line2);
-		//			}
-		//
-		//
-		//			p.waitFor();
-		//
-		//			System.out.println(">>>Exit value: " + p.exitValue());
-		//
-		//
-		//		} catch (IOException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		} catch (InterruptedException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
-	}
+	
 
 	private void accomplishRefactoring(IJavaProject project) {
 		try {
