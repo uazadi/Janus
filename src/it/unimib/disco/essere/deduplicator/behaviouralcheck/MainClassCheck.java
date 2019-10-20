@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
@@ -62,34 +64,15 @@ public class MainClassCheck extends BehaviouralCheck {
 
 		Process p;
 		int exitValue = 1;
-		try {
-			p = new ProcessBuilder(command.split(" ")).start();
-			final int retval = p.waitFor();
-			BufferedReader in = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-			String line = null;
-			while ((line = in.readLine()) != null) {
-				System.out.println("$$" + line);
-			}
-
-			BufferedReader in2 = new BufferedReader(
-					new InputStreamReader(p.getErrorStream()));
-			String line2 = null;
-			while ((line2 = in2.readLine()) != null) {
-				System.out.println("!!" + line2);
-			}
-
-
-			p.waitFor();
-
-			System.out.println(">>>Exit value: " + p.exitValue());
-			exitValue = p.exitValue();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		CommandLine commandLine = CommandLine.parse(command);
+		DefaultExecutor executor = new DefaultExecutor();	
+		try {	
+			exitValue = executor.execute(commandLine);
+			System.out.println("+++++Exit value: " + exitValue);	
+		} catch (IOException e) {	
+			// TODO Auto-generated catch block	
+			e.printStackTrace();	
 		}
 		
 		return exitValue;

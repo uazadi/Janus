@@ -23,12 +23,16 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.lang3.CharSet;
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.internal.runtime.Activator;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
@@ -62,8 +66,13 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.junit.internal.RealSystem;
 import org.junit.internal.requests.ClassRequest;
 import org.junit.runner.Computer;
@@ -109,17 +118,50 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			}
 			accomplishRefactoring(selectedProject);
 			
+			
+			// TODO REVERSE ENGINEER THIS CODE TO FIND THE METHOD TO SAVE 
+			
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IEditorPart editor = page.getActiveEditor();
+			page.saveEditor(editor, true /* confirm */);
+			
+			// ------------------------------------------------------------
+			
+			
 			try {
 				selectedProject.save(null, true);
 			} catch (JavaModelException e1) {
 				e1.printStackTrace();
 			}
 			
+			Display.getDefault().syncExec(new Runnable() { // save all editors needs to be called by the ui thread!
+		        @Override
+		        public void run() {
+		            IDE.saveAllEditors(new IResource[]{(IResource) selectedProject}, true);
+		        }
+		    });
+			
+
+			
 			new CheckCompilation().check(selectedProject);
 
 			
 			MainClassCheck mainCheck = new MainClassCheck(selectedProject);
 			mainCheck.run();
+			
+			try {
+				selectedProject.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+			} catch (CoreException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
+			try {
+				ResourcesPlugin.getWorkspace().save(false, new NullProgressMonitor());
+			} catch (CoreException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
 			JUnitCheck junitCheck = new JUnitCheck(selectedProject);
 			Map<IType, Boolean> junitClasses = null;

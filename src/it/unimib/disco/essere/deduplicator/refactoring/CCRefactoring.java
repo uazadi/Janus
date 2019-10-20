@@ -11,6 +11,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -422,6 +423,32 @@ public abstract class CCRefactoring {
 		return diffExprs;
 	}
 
+	protected void saveAllCompilationUnits() throws JavaModelException {
+		
+		System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		for(ICompilationUnit icu: this.icus_involved) {
+			
+			System.out.println("===================================================  " + icu.getClass());
+			
+			if(icu.hasUnsavedChanges())
+				System.out.println("-------------------------->" + icu.getElementName());
+			
+			icu.save(new NullProgressMonitor(), false);
+			
+			if (icu.isReadOnly()) {
+				System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+			}
+			
+			icu.commit(true, null);
+			
+			IBuffer buf = icu.getBuffer();
+			if (buf != null) { // some Openables (like a JavaProject) don't have a buffer
+				buf.save(null, true);
+				icu.makeConsistent(null); // update the element info of this element
+			}
+			
+		}
+	}
 
 
 	public abstract void apply()  throws UnsuccessfulRefactoringException;

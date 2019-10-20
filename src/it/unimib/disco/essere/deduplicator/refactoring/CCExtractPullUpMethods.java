@@ -46,6 +46,7 @@ public class CCExtractPullUpMethods extends CCRefactoring {
 				// delete the method in the subclass
 				kept.delete(true, null);
 			}
+			saveAllCompilationUnits();
 		} catch (CoreException e) {
 			throw new UnsuccessfulRefactoringException(e.getMessage());
 		}

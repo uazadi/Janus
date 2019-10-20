@@ -26,12 +26,7 @@ public class CCExtractMethod extends CCRefactoring {
 			checkCloneType();
 			extractMethods();
 			selectMethodToKeep(extractedMethods);
-			
-		} catch(JavaModelException e) {
-			// TODO Check access to delete method 
-			// raise when trying to get a method that has already been deleted
-			// no hard done, the computation can continue, but an investigation
-			// on why this happen is worth it 
+			saveAllCompilationUnits();
 		} 
 		catch (CoreException e) {
 			throw new UnsuccessfulRefactoringException(e.getMessage());

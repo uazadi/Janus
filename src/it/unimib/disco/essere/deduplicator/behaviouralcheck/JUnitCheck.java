@@ -110,7 +110,8 @@ public class JUnitCheck extends BehaviouralCheck {
 						return false;
 
 				} catch (CoreException | MalformedURLException | ClassNotFoundException e) {
-					System.out.println("[JUnitCheck] Error JUnit Class " + name);
+					System.out.println("[JUnitCheck] Error in JUnit Class: " + name);
+					System.out.println("[JUnitCheck] The error is: " + e.getMessage());
 				}
 				
 			}
