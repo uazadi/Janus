@@ -65,6 +65,9 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorPart;
@@ -91,6 +94,7 @@ import it.unimib.disco.essere.deduplicator.rad.moea.MethodSelector;
 import it.unimib.disco.essere.deduplicator.rad.moea.MultiObjective;
 import it.unimib.disco.essere.deduplicator.rad.moea.SingleObjective;
 import it.unimib.disco.essere.deduplicator.refactoring.CCRefactoring;
+import it.unimib.disco.essere.deduplicator.versioning.GitVersioner;
 
 @SuppressWarnings("restriction")
 public class HelloWorldAction extends Action implements IWorkbenchWindowActionDelegate {
@@ -116,31 +120,45 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				JavaProject projectTmp = (JavaProject) firstElement;
 				selectedProject = projectTmp.getJavaProject();
 			}
-			accomplishRefactoring(selectedProject);
 			
+//			File projectPath = new File(getProjectPath());
+//			
+//			selectedProject.getPath().toFile();
+//			Git repo = null;
+//			try {
+//				repo = Git.open(projectPath);
+//			} catch (IOException e2) {
+//				try {
+//					Git.init().setDirectory(projectPath).call();
+//					repo = Git.open(projectPath);
+//				} catch (IllegalStateException | GitAPIException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
 			
-			// TODO REVERSE ENGINEER THIS CODE TO FIND THE METHOD TO SAVE 
+			GitVersioner versioner = new GitVersioner(selectedProject);
+			Git repo = ((Git) versioner.getRepo());
 			
-			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-			IEditorPart editor = page.getActiveEditor();
-			page.saveEditor(editor, true /* confirm */);
-			
-			// ------------------------------------------------------------
-			
-			
+			System.out.println("[[[[[[[[[[[[[[[[[TEST GIT]]]]]]]]]]]]]]]]]]]]");
 			try {
-				selectedProject.save(null, true);
-			} catch (JavaModelException e1) {
-				e1.printStackTrace();
+				for(RevCommit o: repo.log().setMaxCount(10).call())
+					System.out.println(o.toString());
+			} catch (GitAPIException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
 			}
 			
-			Display.getDefault().syncExec(new Runnable() { // save all editors needs to be called by the ui thread!
-		        @Override
-		        public void run() {
-		            IDE.saveAllEditors(new IResource[]{(IResource) selectedProject}, true);
-		        }
-		    });
 			
+			accomplishRefactoring(selectedProject);
+			
+			// Save the outcome of the refactoring 
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IEditorPart editor = page.getActiveEditor();
+			page.saveEditor(editor, false /* confirm */);
 
 			
 			new CheckCompilation().check(selectedProject);
@@ -151,13 +169,6 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			
 			try {
 				selectedProject.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
-			} catch (CoreException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			try {
-				ResourcesPlugin.getWorkspace().save(false, new NullProgressMonitor());
 			} catch (CoreException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -181,6 +192,22 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			junitCheck.run();
 		}
 	}
+
+
+
+//	private String getProjectPath() {
+//		String projectPath = "";
+//		try {
+//			String name = selectedProject.getElementName();
+//			String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (selectedProject);
+//			int index = cp[0].lastIndexOf(name);
+//			projectPath = cp[0].substring(0, index) + name + "/";
+//		} catch (CoreException e3) {
+//			// TODO Auto-generated catch block
+//			e3.printStackTrace();
+//		}
+//		return projectPath;
+//	}
 
 	
 
@@ -211,14 +238,10 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 	}
 
 	@Override
-	public void selectionChanged(IAction arg0, ISelection arg1) {
-
-	}
+	public void selectionChanged(IAction arg0, ISelection arg1) {}
 
 	@Override
-	public void dispose() {
-
-	}
+	public void dispose() {}
 
 	@Override
 	public void init(IWorkbenchWindow window) {
