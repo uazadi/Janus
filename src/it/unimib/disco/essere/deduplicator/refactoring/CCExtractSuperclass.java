@@ -46,7 +46,6 @@ public class CCExtractSuperclass extends CCRefactoring {
 			IMethod kept = selectMethodToKeep(extractedMethods);
 			applyExtractSuperclass(kept);
 			kept.delete(true, null);
-			saveAllCompilationUnits();
 		} catch (CoreException | 
 				 OperationCanceledException |
 				 MalformedTreeException | 

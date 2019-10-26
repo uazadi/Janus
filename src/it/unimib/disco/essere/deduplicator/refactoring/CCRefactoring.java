@@ -158,6 +158,10 @@ public abstract class CCRefactoring {
 		this.icus_involved = icus_involved;
 		this.project = project;
 	}
+	
+	public List<ICompilationUnit> getCompilationUnitInvolved(){
+		return this.icus_involved;
+	}
 
 	private static ICompilationUnit getSuperClassICompilationUnit(
 			String lcsSoFar, 
@@ -421,33 +425,6 @@ public abstract class CCRefactoring {
 			}
 		}
 		return diffExprs;
-	}
-
-	protected void saveAllCompilationUnits() throws JavaModelException {
-		
-		System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-		for(ICompilationUnit icu: this.icus_involved) {
-			
-			System.out.println("===================================================  " + icu.getClass());
-			
-			if(icu.hasUnsavedChanges())
-				System.out.println("-------------------------->" + icu.getElementName());
-			
-			icu.save(new NullProgressMonitor(), false);
-			
-			if (icu.isReadOnly()) {
-				System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-			}
-			
-			icu.commit(true, null);
-			
-			IBuffer buf = icu.getBuffer();
-			if (buf != null) { // some Openables (like a JavaProject) don't have a buffer
-				buf.save(null, true);
-				icu.makeConsistent(null); // update the element info of this element
-			}
-			
-		}
 	}
 
 

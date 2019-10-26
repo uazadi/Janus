@@ -121,27 +121,18 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				selectedProject = projectTmp.getJavaProject();
 			}
 			
-//			File projectPath = new File(getProjectPath());
-//			
-//			selectedProject.getPath().toFile();
-//			Git repo = null;
-//			try {
-//				repo = Git.open(projectPath);
-//			} catch (IOException e2) {
-//				try {
-//					Git.init().setDirectory(projectPath).call();
-//					repo = Git.open(projectPath);
-//				} catch (IllegalStateException | GitAPIException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//			}
-			
 			GitVersioner versioner = new GitVersioner(selectedProject);
 			Git repo = ((Git) versioner.getRepo());
+			
+			try {	
+				repo.checkout()
+					.setCreateBranch(true)	
+					.setName("Code_clones_refactoring")
+					.call();
+			} catch (GitAPIException e3) {
+				// TODO Auto-generated catch block
+				e3.printStackTrace();
+			}
 			
 			System.out.println("[[[[[[[[[[[[[[[[[TEST GIT]]]]]]]]]]]]]]]]]]]]");
 			try {
@@ -154,6 +145,8 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			
 			
 			accomplishRefactoring(selectedProject);
+			
+			
 			
 			// Save the outcome of the refactoring 
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
@@ -191,25 +184,7 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 
 			junitCheck.run();
 		}
-	}
-
-
-
-//	private String getProjectPath() {
-//		String projectPath = "";
-//		try {
-//			String name = selectedProject.getElementName();
-//			String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (selectedProject);
-//			int index = cp[0].lastIndexOf(name);
-//			projectPath = cp[0].substring(0, index) + name + "/";
-//		} catch (CoreException e3) {
-//			// TODO Auto-generated catch block
-//			e3.printStackTrace();
-//		}
-//		return projectPath;
-//	}
-
-	
+	}	
 
 	private void accomplishRefactoring(IJavaProject project) {
 		try {
@@ -227,8 +202,14 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 
 			List<CCRefactoring> refactorings = 
 					CCRefactoring.selectRefactoringTechniques(ih, p, project);
-			for(CCRefactoring ccr: refactorings)
+			
+			for(CCRefactoring ccr: refactorings) {
 				ccr.apply();
+				ccr.getCompilationUnitInvolved();
+			}
+				
+			
+			
 
 		} catch (IOException e) {
 			e.printStackTrace();

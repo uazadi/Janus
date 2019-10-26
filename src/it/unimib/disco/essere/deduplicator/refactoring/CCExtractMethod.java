@@ -26,7 +26,6 @@ public class CCExtractMethod extends CCRefactoring {
 			checkCloneType();
 			extractMethods();
 			selectMethodToKeep(extractedMethods);
-			saveAllCompilationUnits();
 		} 
 		catch (CoreException e) {
 			throw new UnsuccessfulRefactoringException(e.getMessage());
