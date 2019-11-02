@@ -2,8 +2,10 @@ package it.unimib.disco.essere.deduplicator.versioning;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
@@ -69,13 +71,25 @@ public class GitVersioner extends Versioner {
 	public void commit(List<String> compilationUnitToCommit) {
 		try {
 			CommitCommand commit = repo.commit();
+			
+			
 			String commitMessage = "[Code Clone Refactoring] Files involved:";
+			
+			// The files are to be searched between the one modified
+			// and the new one created (i.e. the Untracked ones)
+			List<String> files = new ArrayList<String>();
+			files.addAll(repo.status().call().getModified());
+			files.addAll(repo.status().call().getUntracked());
+			
 			for(String name: compilationUnitToCommit) {
-				for(String file: repo.status().call().getModified()) {
-					
+				for(String file: files) {
+				
 					System.out.println(file + "   -   " + name);
-					
+
 					if(name.contains(file)) {
+						
+						repo.add().addFilepattern(file).call();
+						
 						commit.setOnly(file);
 						commitMessage += name + ", "; 
 					}
@@ -85,10 +99,15 @@ public class GitVersioner extends Versioner {
 			commitMessage = commitMessage.substring(0, 
 					commitMessage.length() - 1) 
 					+ ";";
+			
+			Thread.sleep(100);
 
 			RevCommit revCommit = commit.setMessage(commitMessage).call();
 			commitHistory.add(revCommit);
 		} catch (NoWorkTreeException | GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

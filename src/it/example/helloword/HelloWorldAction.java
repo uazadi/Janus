@@ -146,8 +146,8 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			new CheckCompilation().check(selectedProject);
 
 			try {
-			MainClassCheck mainCheck = new MainClassCheck(selectedProject);
-			mainCheck.run();
+				MainClassCheck mainCheck = new MainClassCheck(selectedProject);
+				mainCheck.run();
 			}catch(Exception e) {
 				System.out.println(e.getMessage());
 			}
@@ -202,6 +202,7 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				ccr.apply();
 				compUnitInvolved.addAll(ccr.getCompilationUnitInvolved());
 			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {

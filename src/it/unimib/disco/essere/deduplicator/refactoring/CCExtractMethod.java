@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.internal.core.commands.SuspendCommand;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -28,6 +29,7 @@ public class CCExtractMethod extends CCRefactoring {
 			selectMethodToKeep(extractedMethods);
 		} 
 		catch (CoreException e) {
+			System.out.println(e.getLocalizedMessage());
 			throw new UnsuccessfulRefactoringException(e.getMessage());
 		}
 		

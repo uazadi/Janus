@@ -37,13 +37,54 @@
             </action>
       </actionSet>
    </extension>
-   <extension
-         id="it"
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            class="org.eclipse.jdt.ui.PackageExplorer"
-            locationURI="it.package.helloword.menuContribution1">
-      </menuContribution>
+
+   <extension point="org.eclipse.ui.popupMenus"> 
+    <viewerContribution 
+      id="org.eclipse.ui.articles.action.contribution.popup.navigator"
+   targetID="org.eclipse.jdt.ui.PackageExplorer"> 
+
+   <menu
+         id="org.eclipse.ui.articles.action.contribution.navigator.subMenu"
+         label="Janus"
+         path="additions">
+      <separator name="group1"/>
+      </menu>
+      <action
+         id="org.eclipse.ui.articles.action.contribution.navigator.action2" 
+         label="Start Refactoring"
+         icon="icons/save_edit.png"
+      	 menubarPath="org.eclipse.ui.articles.action.contribution.navigator.subMenu/group1" 
+         class="it.example.helloword.HelloWorldAction"
+      	 enablesFor="1"
+      >      
+      </action> 
+
+   	</viewerContribution> 
+   </extension>
+   
+   <extension point="org.eclipse.ui.popupMenus"> 
+    <viewerContribution 
+      id="org.eclipse.ui.articles.action.contribution.popup.navigator2"
+   targetID="org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions"> 
+
+   <menu
+         id="org.eclipse.ui.articles.action.contribution.navigator.subMenu"
+         label="Janus"
+         path="additions">
+      <separator name="group1"/>
+      </menu>
+      <action
+         id="org.eclipse.ui.articles.action.contribution.navigator.action1" 
+         label="Start Refactoring"
+         icon="icons/save_edit.png"
+      	 menubarPath="org.eclipse.ui.articles.action.contribution.navigator.subMenu/group1" 
+         class="it.example.helloword.HelloWorldAction"
+      	 enablesFor="1"
+      	 state="false"
+         style="push"
+      >      
+      </action> 
+
+   	</viewerContribution> 
    </extension>
 </plugin>

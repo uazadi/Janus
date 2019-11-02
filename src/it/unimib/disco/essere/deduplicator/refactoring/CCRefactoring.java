@@ -158,7 +158,7 @@ public abstract class CCRefactoring {
 		this.icus_involved = icus_involved;
 		this.project = project;
 	}
-	
+
 	public List<ICompilationUnit> getCompilationUnitInvolved(){
 		return this.icus_involved;
 	}
@@ -277,20 +277,24 @@ public abstract class CCRefactoring {
 		if(extractedMethods.size() >= 2) {
 			boolean toKeepChosen = false;
 			for(int i=0; i < extractedMethods.size(); i++) {
-				IMethod extr = extractedMethods.get(i);
-				// A method has to be kept if:
-				// 1) No other method has already been chosen
-				// AND
-				// 2) either this is the last of the methods extracted 
-				//    OR this is the first "static" method extracted
-				if(!toKeepChosen &&
-						(extr.getSignature().contains(" static ") ||
-								(i + 1) == extractedMethods.size())) {
-					toKeepChosen = true;	
-					keep = extr;
-				}
-				else {
-					extr.delete(true, null);
+				try {
+					IMethod extr = extractedMethods.get(i);
+					// A method has to be kept if:
+					// 1) No other method has already been chosen
+					// AND
+					// 2) either this is the last of the methods extracted 
+					//    OR this is the first "static" method extracted
+					if(!toKeepChosen &&
+							(extr.getSignature().contains(" static ") ||
+									(i + 1) == extractedMethods.size())) {
+						toKeepChosen = true;	
+						keep = extr;
+					}
+					else {
+						extr.delete(true, null);
+					}
+				}catch (Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}
