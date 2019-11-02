@@ -2,24 +2,34 @@ package it.unimib.disco.essere.deduplicator.versioning;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.errors.NoWorkTreeException;
+import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitVersioner extends Versioner {
-	
+
 	Git repo;
+	LinkedList<RevCommit> commitHistory;
 
 	public GitVersioner(IJavaProject verionedProject) {
 		super(verionedProject);
-		
+
 		File projectPath = new File(getProjectPath(verionedProject));
-		
+
 		verionedProject.getPath().toFile();
-		
+
 		try {
 			repo = Git.open(projectPath);
 		} catch (IOException e2) {
@@ -34,11 +44,12 @@ public class GitVersioner extends Versioner {
 				e.printStackTrace();
 			}
 		}
-		
-		
+
+		commitHistory = new LinkedList<RevCommit>();
+
 	}
-	
-	
+
+
 	private String getProjectPath(IJavaProject verionedProject) {
 		String projectPath = "";
 		try {
@@ -55,21 +66,78 @@ public class GitVersioner extends Versioner {
 
 
 	@Override
-	public void commit() {
-		// TODO Auto-generated method stub
+	public void commit(List<String> compilationUnitToCommit) {
+		try {
+			CommitCommand commit = repo.commit();
+			String commitMessage = "[Code Clone Refactoring] Files involved:";
+			for(String name: compilationUnitToCommit) {
+				for(String file: repo.status().call().getModified()) {
+					
+					System.out.println(file + "   -   " + name);
+					
+					if(name.contains(file)) {
+						commit.setOnly(file);
+						commitMessage += name + ", "; 
+					}
+				}
+			}
 
+			commitMessage = commitMessage.substring(0, 
+					commitMessage.length() - 1) 
+					+ ";";
+
+			RevCommit revCommit = commit.setMessage(commitMessage).call();
+			commitHistory.add(revCommit);
+		} catch (NoWorkTreeException | GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void rollback() {
-		// TODO Auto-generated method stub
-
+		repo.revert().include(commitHistory.pollLast());
 	}
 
 
 	@Override
 	public Object getRepo() {
 		return repo;
+	}
+
+
+	@Override
+	public void newBranch(String branchName) {
+		try {	
+			applyCheckout();
+		} catch(RefNotFoundException e1) {
+			repo.commit().setMessage("Initial commit");
+			try {
+				applyCheckout();
+			} catch (GitAPIException e) {
+				e.printStackTrace();
+			}
+		} 
+		catch (GitAPIException e2) {
+			// TODO Auto-generated catch block
+			// TODO Handle case branch is already created!
+			e2.printStackTrace();
+		}
+	}
+
+
+	private void applyCheckout() throws GitAPIException, RefAlreadyExistsException, RefNotFoundException,
+	InvalidRefNameException, CheckoutConflictException {
+		try {
+			repo.checkout()
+			.setCreateBranch(true)	
+			.setName("Code_clones_refactoring")
+			.call();
+		} catch (RefAlreadyExistsException e) {
+			repo.checkout()	
+			.setName("Code_clones_refactoring")
+			.call();
+		}
 	}
 
 }

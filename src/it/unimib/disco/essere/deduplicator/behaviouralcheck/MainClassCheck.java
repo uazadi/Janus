@@ -31,8 +31,11 @@ public class MainClassCheck extends BehaviouralCheck {
 			vm = JavaRuntime.getVMInstall(selectedProject);
 			IVMRunner vmr = vm.getVMRunner (ILaunchManager.RUN_MODE);
 			String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (selectedProject);
+			
+			//String name = "it.unimib.disco.essere.core.InputParser";
+			String name = "test.TestRun";
 
-			VMRunnerConfiguration config = new VMRunnerConfiguration("it.unimib.disco.essere.core.InputParser", cp);
+			VMRunnerConfiguration config = new VMRunnerConfiguration(name, cp);
 
 			String[] args = {};
 			config.setProgramArguments (args);

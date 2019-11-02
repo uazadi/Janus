@@ -124,41 +124,33 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			GitVersioner versioner = new GitVersioner(selectedProject);
 			Git repo = ((Git) versioner.getRepo());
 			
-			try {	
-				repo.checkout()
-					.setCreateBranch(true)	
-					.setName("Code_clones_refactoring")
-					.call();
-			} catch (GitAPIException e3) {
-				// TODO Auto-generated catch block
-				e3.printStackTrace();
-			}
-			
-			System.out.println("[[[[[[[[[[[[[[[[[TEST GIT]]]]]]]]]]]]]]]]]]]]");
-			try {
-				for(RevCommit o: repo.log().setMaxCount(10).call())
-					System.out.println(o.toString());
-			} catch (GitAPIException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
+			versioner.newBranch("CCrefactoring");
 			
 			
-			accomplishRefactoring(selectedProject);
-			
-			
-			
-			// Save the outcome of the refactoring 
+			List<ICompilationUnit> compUnitInvolved = accomplishRefactoring(selectedProject);
+		 
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			IEditorPart editor = page.getActiveEditor();
 			page.saveEditor(editor, false /* confirm */);
+			
 
+			
+			List<String> pathOfCompUnitInvolved = new ArrayList<String>();
+			for(ICompilationUnit icu: compUnitInvolved) {
+				pathOfCompUnitInvolved.add(icu.getPath().toString());
+			}
+
+			versioner.commit(pathOfCompUnitInvolved);
+			
 			
 			new CheckCompilation().check(selectedProject);
 
-			
+			try {
 			MainClassCheck mainCheck = new MainClassCheck(selectedProject);
 			mainCheck.run();
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
 			
 			try {
 				selectedProject.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
@@ -186,7 +178,10 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 		}
 	}	
 
-	private void accomplishRefactoring(IJavaProject project) {
+	private List<ICompilationUnit> accomplishRefactoring(IJavaProject project) {
+		
+		List<ICompilationUnit> compUnitInvolved = new ArrayList<ICompilationUnit>();
+		
 		try {
 			PreprocessingFacade pf = new PreprocessingFacade();
 			MethodHandler.clear();
@@ -205,17 +200,15 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			
 			for(CCRefactoring ccr: refactorings) {
 				ccr.apply();
-				ccr.getCompilationUnitInvolved();
+				compUnitInvolved.addAll(ccr.getCompilationUnitInvolved());
 			}
-				
-			
-			
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		return compUnitInvolved;
 	}
 
 	@Override
