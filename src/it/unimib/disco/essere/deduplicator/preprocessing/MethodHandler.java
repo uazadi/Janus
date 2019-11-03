@@ -47,7 +47,8 @@ public class MethodHandler implements InstancesHandler{
 		return instance;
 	}
 	
-	public static synchronized void clear() {
+	@Override
+	public void clear() {
 		instance = new MethodHandler();
 	}
 

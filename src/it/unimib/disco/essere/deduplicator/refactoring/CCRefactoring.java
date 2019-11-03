@@ -2,9 +2,11 @@ package it.unimib.disco.essere.deduplicator.refactoring;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -44,7 +46,7 @@ public abstract class CCRefactoring {
 	protected List<ASTNode> cloneSet;
 	protected List<ICompilationUnit> icus_involved;
 	protected String extractedMethodName;
-	protected List<IMethod> extractedMethods;
+	protected Set<IMethod> extractedMethods;
 	protected IJavaProject project;
 
 	public static List<CCRefactoring> selectRefactoringTechniques(
@@ -233,8 +235,8 @@ public abstract class CCRefactoring {
 		return workingCopy;
 	}
 
-	private List<IMethod> getExtractedMethods() throws JavaModelException {
-		List<IMethod> extractedMethods = new LinkedList<>();
+	private Set<IMethod> getExtractedMethods() throws JavaModelException {
+		Set<IMethod> extractedMethods = new HashSet<>();
 
 		for(ICompilationUnit workingCopy: this.icus_involved) {
 			workingCopy.commitWorkingCopy(true, new NullProgressMonitor());
@@ -272,13 +274,15 @@ public abstract class CCRefactoring {
 		});
 	}
 
-	protected IMethod selectMethodToKeep(List<IMethod> extractedMethods) throws JavaModelException {
+	protected IMethod selectMethodToKeep(Set<IMethod> extractedMethods) {
 		IMethod keep = null;
 		if(extractedMethods.size() >= 2) {
 			boolean toKeepChosen = false;
-			for(int i=0; i < extractedMethods.size(); i++) {
+			Iterator<IMethod> extractedMethodsIterator  = extractedMethods.iterator();
+			while(extractedMethodsIterator.hasNext()) {
 				try {
-					IMethod extr = extractedMethods.get(i);
+					IMethod extr = extractedMethodsIterator.next();
+					
 					// A method has to be kept if:
 					// 1) No other method has already been chosen
 					// AND
@@ -286,15 +290,18 @@ public abstract class CCRefactoring {
 					//    OR this is the first "static" method extracted
 					if(!toKeepChosen &&
 							(extr.getSignature().contains(" static ") ||
-									(i + 1) == extractedMethods.size())) {
+									!extractedMethodsIterator.hasNext())) {
 						toKeepChosen = true;	
 						keep = extr;
 					}
 					else {
 						extr.delete(true, null);
 					}
-				}catch (Exception e) {
-					e.printStackTrace();
+				}catch (JavaModelException e) {
+					// TODO Investigate methods inserted more tehn one time
+					// The method that should be handle has already be deleted. 
+					// This error can be ignored but is worth investigate why
+					// this happen.
 				}
 			}
 		}

@@ -14,6 +14,8 @@ public interface InstancesHandler {
 	public Instance getMethod(int methodID);
 
 	public int getNumOfInstance();
+	
+	public void clear();
 
 	/**
 	 * @param javaClassName the name of the subClass (it can be accessed through the Java Class method "getName()")

@@ -22,6 +22,9 @@ import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitVersioner extends Versioner {
 
+	public static final String DEFAULT_BRANCH_NAME = 
+			"Code_clones_refactoring";
+	
 	Git repo;
 	LinkedList<RevCommit> commitHistory;
 
@@ -83,8 +86,6 @@ public class GitVersioner extends Versioner {
 			
 			for(String name: compilationUnitToCommit) {
 				for(String file: files) {
-				
-					System.out.println(file + "   -   " + name);
 
 					if(name.contains(file)) {
 						
@@ -128,11 +129,11 @@ public class GitVersioner extends Versioner {
 	@Override
 	public void newBranch(String branchName) {
 		try {	
-			applyCheckout();
+			applyCheckout(branchName);
 		} catch(RefNotFoundException e1) {
 			repo.commit().setMessage("Initial commit");
 			try {
-				applyCheckout();
+				applyCheckout(branchName);
 			} catch (GitAPIException e) {
 				e.printStackTrace();
 			}
@@ -143,18 +144,22 @@ public class GitVersioner extends Versioner {
 			e2.printStackTrace();
 		}
 	}
+	
+	public void newBranch() {
+		this.newBranch(GitVersioner.DEFAULT_BRANCH_NAME);
+	}
 
 
-	private void applyCheckout() throws GitAPIException, RefAlreadyExistsException, RefNotFoundException,
+	private void applyCheckout(String branchName) throws GitAPIException, RefAlreadyExistsException, RefNotFoundException,
 	InvalidRefNameException, CheckoutConflictException {
 		try {
 			repo.checkout()
 			.setCreateBranch(true)	
-			.setName("Code_clones_refactoring")
+			.setName(branchName)
 			.call();
 		} catch (RefAlreadyExistsException e) {
 			repo.checkout()	
-			.setName("Code_clones_refactoring")
+			.setName(branchName)
 			.call();
 		}
 	}
