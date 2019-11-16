@@ -11,13 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.internal.resources.File;
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.action.Action;
@@ -40,6 +43,7 @@ import it.unimib.disco.essere.deduplicator.rad.moea.MultiObjective;
 import it.unimib.disco.essere.deduplicator.rad.moea.SingleObjective;
 import it.unimib.disco.essere.deduplicator.refactoring.CCRefactoring;
 import it.unimib.disco.essere.deduplicator.versioning.GitVersioner;
+import it.unimib.disco.essere.deduplicator.versioning.VersionerException;
 
 @SuppressWarnings("restriction")
 public class HelloWorldAction extends Action implements IWorkbenchWindowActionDelegate {
@@ -67,21 +71,59 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				selectedProject = projectTmp.getJavaProject();
 			}
 			
-			GitVersioner versioner = new GitVersioner(selectedProject);
+			GitVersioner versioner = null;
+			try {
+				versioner = new GitVersioner(selectedProject);
+			} catch (VersionerException e3) {
+				// TODO Auto-generated catch blockaaaaa
+				e3.printStackTrace();
+			}
 			
-			versioner.newBranch("CCrefactoring");
+			try {
+				versioner.newBranch("CCrefactoring");
+			} catch (VersionerException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 			
 			List<ICompilationUnit> compUnitInvolved = accomplishRefactoring(selectedProject);
 		 
-			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-			IEditorPart editor = page.getActiveEditor();
-			page.saveEditor(editor, false /* confirm */);
+			
+			
+			try {
+				for(ICompilationUnit icu: compUnitInvolved) {
+					icu.commitWorkingCopy(true, new NullProgressMonitor());
+					icu.close();
+				}
+			} catch (JavaModelException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
+			
+//			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+//			IEditorPart editor = page.getActiveEditor();
+//			page.saveEditor(editor, false /* confirm */);
+			
+			try {
+				for(ICompilationUnit icu: compUnitInvolved)
+					icu.close();
+				
+			} catch (JavaModelException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}
 					
 			List<String> pathOfCompUnitInvolved = new ArrayList<String>();
 			for(ICompilationUnit icu: compUnitInvolved) {
 				pathOfCompUnitInvolved.add(icu.getPath().toString());
 			}
-			versioner.commit(pathOfCompUnitInvolved);
+			
+			try {
+				versioner.commit(pathOfCompUnitInvolved);
+			} catch (VersionerException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			
 			new CheckCompilation().check(selectedProject);
 
@@ -94,13 +136,6 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			}catch(Exception e) {
 				System.out.println(e.getMessage());
 			}
-			
-//			try {
-//				selectedProject.getProject().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
-//			} catch (CoreException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
 
 			JUnitCheck junitCheck = new JUnitCheck(selectedProject);
 			Map<IType, Boolean> junitClasses = null;
@@ -118,6 +153,13 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 			junitCheck.setJunitClasses(junitClasses);
 
 			junitCheck.run();
+			
+//			try {
+//				versioner.rollback();
+//			} catch (VersionerException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 	}	
 

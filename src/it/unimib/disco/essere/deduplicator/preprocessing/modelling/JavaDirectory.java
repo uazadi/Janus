@@ -18,17 +18,17 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class JavaDirectory extends JavaContainer {
-	
+
 	public static String javaExtension = ".java";
-	
+
 	/** The path of the directory that contain all 
 	 *  the .java that have to be analyzed*/
 	private String directory;
-	
+
 	private IJavaProject eclipseProject; 
-	
+
 	private String prevDir;
-	
+
 	/**
 	 * Create an instance of JavaDirectory and create an instance of all its children (JavaFile) 
 	 * 
@@ -38,11 +38,11 @@ public class JavaDirectory extends JavaContainer {
 	public JavaDirectory(String directory) throws IOException {
 		this.directory = directory;
 	}
-	
+
 	public JavaDirectory(IJavaProject project) throws IOException {
 		this.eclipseProject = project;
 	}
-	
+
 	public void startPreprocessing() throws IOException {
 		children = extractChildren();
 	}
@@ -51,7 +51,7 @@ public class JavaDirectory extends JavaContainer {
 	public JavaContainer getParent() {
 		return null;
 	}
-	
+
 	@Override
 	public String getName() {
 		return directory;
@@ -69,7 +69,7 @@ public class JavaDirectory extends JavaContainer {
 		else
 			return extractFromEclipse();
 	}
-	
+
 
 	private List<JavaComponent> extractFromEclipse() {
 		List<JavaComponent> javaFiles = new LinkedList<JavaComponent>();
@@ -78,8 +78,11 @@ public class JavaDirectory extends JavaContainer {
 				// if it is not a library (jar file)
 				if (!pfr.toString().contains(".jar")) {
 					for (IJavaElement pf : pfr.getChildren()) {
-						for (ICompilationUnit ci : ((IPackageFragment) pf).getCompilationUnits()) {
-							addJavaFile(javaFiles, ci);
+						//if it not a package containing test cases
+						if(!pf.getElementName().toLowerCase().contains("test")) {
+							for (ICompilationUnit ci : ((IPackageFragment) pf).getCompilationUnits()) {
+								addJavaFile(javaFiles, ci);
+							}
 						}
 					}
 				}
@@ -95,11 +98,11 @@ public class JavaDirectory extends JavaContainer {
 		Files.walk(Paths.get(directory), FileVisitOption.FOLLOW_LINKS).filter(file -> {
 			return file.toString().contains(javaExtension);
 		}).forEach(javaFile -> {
-				String dir = javaFile.toString().substring(0, javaFile.toString().lastIndexOf("/"));
-				if(!dir.equals(prevDir))
-					System.out.println("Loading " + dir + "...");
-				prevDir = dir;
-				addJavaFile(javaFiles, javaFile);
+			String dir = javaFile.toString().substring(0, javaFile.toString().lastIndexOf("/"));
+			if(!dir.equals(prevDir))
+				System.out.println("Loading " + dir + "...");
+			prevDir = dir;
+			addJavaFile(javaFiles, javaFile);
 		});
 		return javaFiles;
 	}
@@ -111,7 +114,7 @@ public class JavaDirectory extends JavaContainer {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	private void addJavaFile(
 			List<JavaComponent> javaFiles, 
 			ICompilationUnit javaFile) {

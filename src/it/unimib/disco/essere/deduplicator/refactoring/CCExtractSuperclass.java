@@ -116,13 +116,4 @@ public class CCExtractSuperclass extends CCRefactoring {
 		IType superClassIType = project.findType(fullyQualifiedNameSuperClass);
 		icus_involved.add(superClassIType.getCompilationUnit());
 	}
-
-	private CompilationUnit fromICUtoCU(ICompilationUnit icu) {
-		ASTParser parser = ASTParser.newParser(AST.JLS11); 
-		parser.setSource(icu);
-		parser.setResolveBindings(true); // we need bindings later on
-		parser.setProject(project);
-		CompilationUnit cu = (CompilationUnit) parser.createAST(null /* IProgressMonitor */); // parse
-		return cu;
-	}
 }

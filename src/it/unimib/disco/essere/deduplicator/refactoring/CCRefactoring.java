@@ -23,16 +23,21 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -224,6 +229,8 @@ public abstract class CCRefactoring {
 		ICompilationUnit workingCopy = getICompilationUnit(stmt);
 		workingCopy.becomeWorkingCopy(new NullProgressMonitor());
 
+		handleConstantConflict(workingCopy);
+
 		ExtractMethodRefactoring refactoring = new ExtractMethodRefactoring(
 				workingCopy, stmt.getStartPosition(), stmt.getLength());
 
@@ -239,6 +246,7 @@ public abstract class CCRefactoring {
 		Set<IMethod> extractedMethods = new HashSet<>();
 
 		for(ICompilationUnit workingCopy: this.icus_involved) {
+
 			workingCopy.commitWorkingCopy(true, new NullProgressMonitor());
 			workingCopy.reconcile(AST.JLS11, true, null, new NullProgressMonitor());
 
@@ -247,6 +255,7 @@ public abstract class CCRefactoring {
 			// Find the extracted methods
 			for(int j=0; j < methods.length; j++) {
 				IMethod im = methods[j];
+
 				if(im.getElementName().equals(this.extractedMethodName)){
 					extractedMethods.add(im);
 				}
@@ -254,6 +263,14 @@ public abstract class CCRefactoring {
 		}
 		return extractedMethods;
 	}
+
+	private void handleConstantConflict(ICompilationUnit workingCopy) {
+		CompilationUnit cu = this.fromICUtoCU(workingCopy);
+
+
+	}
+
+
 
 	protected void sortNodes(List<ASTNode> nodes) {
 		/** Sort the statements in descending order, in this way
@@ -282,7 +299,7 @@ public abstract class CCRefactoring {
 			while(extractedMethodsIterator.hasNext()) {
 				try {
 					IMethod extr = extractedMethodsIterator.next();
-					
+
 					// A method has to be kept if:
 					// 1) No other method has already been chosen
 					// AND
@@ -298,7 +315,7 @@ public abstract class CCRefactoring {
 						extr.delete(true, null);
 					}
 				}catch (JavaModelException e) {
-					// TODO Investigate methods inserted more tehn one time
+					// TODO Investigate methods inserted more then one time
 					// The method that should be handle has already be deleted. 
 					// This error can be ignored but is worth investigate why
 					// this happen.
@@ -317,7 +334,7 @@ public abstract class CCRefactoring {
 
 				ASTMatcher matcher = new ASTMatcher();
 
-				if(stmt1.subtreeMatch(matcher, stmt2)) {
+				if(stmt1.subtreeMatch(matcher, stmt2)) {					
 					System.out.println("[[[[[[[[[[[[[[[[EXACT MATCH]]]]]]]]]]]]]]]]");
 				}else {
 					System.out.println("[[[[[[[[[[[[[[[[NOT EXACT MATCH]]]]]]]]]]]]]]]]");					
@@ -327,10 +344,29 @@ public abstract class CCRefactoring {
 		}
 
 		if(cloneSet.size() > 1) {
-			for(List<ASTNode> diffs: getDiffs(cloneSet)) {
-				System.out.println("[CCRefactoring      ---      checkCloneType]" + diffs.size());
-				for(ASTNode diff: diffs) {
-					System.out.println("[CCRefactoring      ---      checkCloneType]" + diff.toString());
+
+			Set<ASTNode> diffExprs = 
+					new HashSet<ASTNode>();
+
+			getDiffs(cloneSet, diffExprs);
+
+
+			for(ASTNode stmt: cloneSet) {
+				for(ASTNode diff: diffExprs) {
+					System.out.println("[CCRefactoring      ---      checkCloneType]______________________________________________________________");
+					System.out.println(stmt.toString());
+					System.out.println(diff.toString());
+
+					if(stmt.toString().contains(diff.toString())) {
+						SingleVariableDeclaration svd = stmt.getAST().newSingleVariableDeclaration();
+						
+						AST ast = stmt.getAST();
+						svd.setType(ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String"))));
+						svd.setName(ast.newSimpleName("args"));
+						
+						  
+					}
+
 				}
 			}
 		}
@@ -338,21 +374,13 @@ public abstract class CCRefactoring {
 
 
 	@SuppressWarnings("unchecked")
-	private List<List<ASTNode>>  getDiffs(List<ASTNode> nodes) {
-		//ASTNode left, ASTNode right) {
-		List<List<ASTNode>> diffExprs = 
-				new ArrayList<List<ASTNode>>();
-
-		//		    List<StructuralPropertyDescriptor> props = left
-		//	                .structuralPropertiesForType();
+	private void  getDiffs(List<ASTNode> nodes, Set<ASTNode> diff) {
 
 		List<StructuralPropertyDescriptor> props = nodes.get(0)
 				.structuralPropertiesForType();
 
 
 		for (StructuralPropertyDescriptor property : props) {
-
-			List<ASTNode> diff = new ArrayList<ASTNode>();
 
 			List<Object> strucProps = new ArrayList<Object>();
 
@@ -369,6 +397,8 @@ public abstract class CCRefactoring {
 						nodes.get(0) instanceof NumberLiteral    ||
 						nodes.get(0) instanceof StringLiteral    ||
 						nodes.get(0) instanceof TypeLiteral) {
+
+
 
 
 					if(!strucProps.stream().allMatch(strucProps.get(0)::equals)){
@@ -396,11 +426,9 @@ public abstract class CCRefactoring {
 
 
 				if(!newNodes.contains(null)) {
-					diffExprs.addAll(getDiffs(newNodes));
-				}
 
-				//                	if(leftVal != null && rightVal != null)
-				//						diffExprs.addAll(getDiffs((ASTNode) leftVal, (ASTNode) rightVal));
+					getDiffs(newNodes, diff);
+				}
 
 			} else if (property.isChildListProperty()) {
 
@@ -418,28 +446,25 @@ public abstract class CCRefactoring {
 
 
 
-					diffExprs.addAll(getDiffs(newNodes));
+					getDiffs(newNodes, diff);
 
 				}
 
-
-
-				//	                Iterator<ASTNode> leftValIt = ((Iterable<ASTNode>) leftVal)
-				//	                        .iterator();
-				//	                Iterator<ASTNode> rightValIt = ((Iterable<ASTNode>) rightVal)
-				//	                        .iterator();
-				//	                while (leftValIt.hasNext() && rightValIt.hasNext()) {
-				//	                    // recursively call this function on child nodes
-				//	                	diffExprs.addAll(getDiffs(leftValIt.next(), rightValIt.next()));
-				//						
-				//	                }
 			}
 		}
-		return diffExprs;
 	}
 
 
 	public abstract void apply()  throws UnsuccessfulRefactoringException;
+
+	protected CompilationUnit fromICUtoCU(ICompilationUnit icu) {
+		ASTParser parser = ASTParser.newParser(AST.JLS11); 
+		parser.setSource(icu);
+		parser.setResolveBindings(true); // we need bindings later on
+		parser.setProject(project);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null /* IProgressMonitor */); // parse
+		return cu;
+	}
 
 }
 
