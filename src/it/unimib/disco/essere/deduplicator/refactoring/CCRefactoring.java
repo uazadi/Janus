@@ -358,6 +358,8 @@ public abstract class CCRefactoring {
 
 			Set<CompilationUnit> CompUnitActMod = new HashSet<>();
 
+			List<VariableDeclarationStatement> ssss = new ArrayList<VariableDeclarationStatement>();
+
 			for(ASTNode stmt: cloneSet) {
 
 				ASTNode tmp = stmt.getParent();
@@ -369,21 +371,46 @@ public abstract class CCRefactoring {
 					cu.recordModifications();
 					CompUnitActMod.add((CompilationUnit) cu);
 				}
-				
+
 				ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
 
 				Block block = ((Block) stmt.getParent());
-				AST ast = block.getAST();
+				AST ast = cu.getAST();
+
+				for(MethodDeclaration md: ((TypeDeclaration) cu.types().get(0)).getMethods()) 
+					for(Object o: md.getBody().statements())
+						if(stmt.equals(o)) {
+							System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+							block = (Block) stmt.getParent();
+						}
+
+
+
+
+				ASTRewrite rewriter = ASTRewrite.create(ast);
+
+				String source = "";
+				try {
+					source = icu.getBuffer().getContents();
+				} catch (JavaModelException e) {
+					e.printStackTrace();
+				}
+				Document document = new Document(source);
+
+
+
 
 				for(ASTNode diff: diffExprs) {
 
+
+
 					if(diff instanceof StringLiteral && stmt.toString().contains(diff.toString())) {
-//						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE");
-//						System.out.println(stmt.getParent());
-						
-						
-						
-						
+						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE");
+						System.out.println(stmt.getParent());
+
+
+
+
 						Random rand = new Random();
 						String varName = "const" + rand.nextInt(1000);
 
@@ -394,7 +421,7 @@ public abstract class CCRefactoring {
 
 						// (StringLiteral) ASTNode.copySubtree(ast.newStringLiteral().getAST()
 
-							StringLiteral nn = ast.newStringLiteral();
+						StringLiteral nn = ast.newStringLiteral();
 						nn.setLiteralValue(diff.toString().replace("\"", ""));
 						vdf.setInitializer(nn);
 
@@ -407,86 +434,65 @@ public abstract class CCRefactoring {
 
 						VariableDeclarationFragment vdf_varname = ast.newVariableDeclarationFragment();
 						vdf_varname.setName(ast.newSimpleName(varName));
-						
-						
-						
-						
-						
-						
-						
-						
-						ASTRewrite rewriter = ASTRewrite.create(ast);
-
-						String source = "";
-						try {
-							source = icu.getBuffer().getContents();
-						} catch (JavaModelException e) {
-							e.printStackTrace();
-						}
-						Document document = new Document(source);
 
 
 						rewriter.replace(diff, vdf_varname, null);
-						TextEdit edits = rewriter.rewriteAST(document, null);
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
+
 
 						int index = block.statements().indexOf(stmt);
 
 						block.statements().add(index - 1, vds);
 
-//						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER");
-//						System.out.println(stmt.getParent());
-						
-						
-						System.out.println("############################### DOCUMENT");
-						System.out.println(document.get());
+
+
+						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER");
+						System.out.println(stmt.getParent());
+
 
 						int newStartingPosition = stmt.getStartPosition() + vds.getLength();
 
 						stmt.setSourceRange(newStartingPosition, stmt.getLength());
-						
-						
-						
-						
-						
-						
-						
-						try {
-							edits.apply(document);
-							String newSource = document.get();
-							icu.getBuffer().setContents(newSource);
-						} catch (MalformedTreeException | BadLocationException e) {
-							e.printStackTrace();
-						} catch (JavaModelException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 
 					}
 				}
-			}
 
-			for(CompilationUnit cu: CompUnitActMod) {
+
+
+
+//				for(VariableDeclarationStatement vds: ssss) {
+//					int index = block.statements().indexOf(stmt);	
+//					block.statements().add(index - 1, vds);
+//				}
+
+				TextEdit edits = rewriter.rewriteAST(document, null);
+
 				try {
-					ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
-					String source = icu.getBuffer().getContents();
-					Document document = new Document(source);
-					commitChanges(icu, cu, document);
-				} catch (MalformedTreeException | JavaModelException | BadLocationException e) {
+					edits.apply(document);
+					String newSource = document.get();
+					icu.getBuffer().setContents(newSource);
+				} catch (MalformedTreeException | BadLocationException e) {
+					e.printStackTrace();
+				} catch (JavaModelException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
 			}
+
+
+
+
+
+			//			for(CompilationUnit cu: CompUnitActMod) {
+			//				try {
+			//					ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
+			//					String source = icu.getBuffer().getContents();
+			//					Document document = new Document(source);
+			//					commitChanges(icu, cu, document);
+			//				} catch (MalformedTreeException | JavaModelException | BadLocationException e) {
+			//					e.printStackTrace();
+			//				}
+			//			}
 		}
 	}
 
