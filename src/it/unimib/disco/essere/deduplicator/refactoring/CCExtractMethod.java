@@ -23,15 +23,15 @@ public class CCExtractMethod extends CCRefactoring {
 	@Override
 	public void apply() throws UnsuccessfulRefactoringException {
 		sortNodes(cloneSet);
-		try {
+//		try {
 			checkCloneType();
-			extractMethods();
-			selectMethodToKeep(extractedMethods);
-		} 
-		catch (CoreException e) {
-			System.out.println(e.getLocalizedMessage());
-			throw new UnsuccessfulRefactoringException(e.getMessage());
-		}
+//			extractMethods();
+//			selectMethodToKeep(extractedMethods);
+//		} 
+//		catch (CoreException e) {
+//			System.out.println(e.getLocalizedMessage());
+//			throw new UnsuccessfulRefactoringException(e.getMessage());
+//		}
 		
 	}
 	

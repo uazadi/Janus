@@ -71,20 +71,20 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				selectedProject = projectTmp.getJavaProject();
 			}
 			
-			GitVersioner versioner = null;
-			try {
-				versioner = new GitVersioner(selectedProject);
-			} catch (VersionerException e3) {
-				// TODO Auto-generated catch blockaaaaa
-				e3.printStackTrace();
-			}
-			
-			try {
-				versioner.newBranch("CCrefactoring");
-			} catch (VersionerException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}
+//			GitVersioner versioner = null;
+//			try {
+//				versioner = new GitVersioner(selectedProject);
+//			} catch (VersionerException e3) {
+//				// TODO Auto-generated catch blockaaaaa
+//				e3.printStackTrace();
+//			}
+//			
+//			try {
+//				versioner.newBranch("CCrefactoring");
+//			} catch (VersionerException e2) {
+//				// TODO Auto-generated catch block
+//				e2.printStackTrace();
+//			}
 			
 			List<ICompilationUnit> compUnitInvolved = accomplishRefactoring(selectedProject);
 		 
@@ -113,46 +113,46 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				e2.printStackTrace();
 			}
 					
-			List<String> pathOfCompUnitInvolved = new ArrayList<String>();
-			for(ICompilationUnit icu: compUnitInvolved) {
-				pathOfCompUnitInvolved.add(icu.getPath().toString());
-			}
+//			List<String> pathOfCompUnitInvolved = new ArrayList<String>();
+//			for(ICompilationUnit icu: compUnitInvolved) {
+//				pathOfCompUnitInvolved.add(icu.getPath().toString());
+//			}
 			
-			try {
-				versioner.commit(pathOfCompUnitInvolved);
-			} catch (VersionerException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+//			try {
+//				versioner.commit(pathOfCompUnitInvolved);
+//			} catch (VersionerException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
 			
-			new CheckCompilation().check(selectedProject);
-
-			try {
-				Set<String> names = new HashSet<String>();
-				names.add("it.unimib.disco.essere.core.InputParser");
-				//names.add("test.TestRun");
-				MainClassCheck mainCheck = new MainClassCheck(selectedProject, names);
-				mainCheck.run();
-			}catch(Exception e) {
-				System.out.println(e.getMessage());
-			}
-
-			JUnitCheck junitCheck = new JUnitCheck(selectedProject);
-			Map<IType, Boolean> junitClasses = null;
-			try {
-				junitClasses = junitCheck.findJunitClasses();
-				for(IType junitClass: junitClasses.keySet()) {
-					if(!junitClass.getElementName().equals("TestCrossValidation"))
-						junitClasses.replace(junitClass, false);
-				}
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			junitCheck.setJunitClasses(junitClasses);
-
-			junitCheck.run();
+//			new CheckCompilation().check(selectedProject);
+//
+//			try {
+//				Set<String> names = new HashSet<String>();
+//				names.add("it.unimib.disco.essere.core.InputParser");
+//				//names.add("test.TestRun");
+//				MainClassCheck mainCheck = new MainClassCheck(selectedProject, names);
+//				mainCheck.run();
+//			}catch(Exception e) {
+//				System.out.println(e.getMessage());
+//			}
+//
+//			JUnitCheck junitCheck = new JUnitCheck(selectedProject);
+//			Map<IType, Boolean> junitClasses = null;
+//			try {
+//				junitClasses = junitCheck.findJunitClasses();
+//				for(IType junitClass: junitClasses.keySet()) {
+//					if(!junitClass.getElementName().equals("TestCrossValidation"))
+//						junitClasses.replace(junitClass, false);
+//				}
+//			} catch (CoreException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//			
+//			junitCheck.setJunitClasses(junitClasses);
+//
+//			junitCheck.run();
 			
 //			try {
 //				versioner.rollback();
