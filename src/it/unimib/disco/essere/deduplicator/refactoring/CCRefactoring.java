@@ -374,15 +374,15 @@ public abstract class CCRefactoring {
 
 				ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
 
-				Block block = ((Block) stmt.getParent());
+				//Block block = ((Block) stmt.getParent());
 				AST ast = cu.getAST();
 
-				for(MethodDeclaration md: ((TypeDeclaration) cu.types().get(0)).getMethods()) 
-					for(Object o: md.getBody().statements())
-						if(stmt.equals(o)) {
-							System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-							block = (Block) stmt.getParent();
-						}
+//				for(MethodDeclaration md: ((TypeDeclaration) cu.types().get(0)).getMethods()) 
+//					for(Object o: md.getBody().statements())
+//						if(stmt.equals(o)) {
+//							System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//							block = (Block) stmt.getParent();
+//						}
 
 
 
@@ -398,7 +398,8 @@ public abstract class CCRefactoring {
 				Document document = new Document(source);
 
 
-
+				Block newBlock = ast.newBlock();
+				Block oldBlock = (Block) stmt.getParent();
 
 				for(ASTNode diff: diffExprs) {
 
@@ -406,8 +407,8 @@ public abstract class CCRefactoring {
 
 					if(diff instanceof StringLiteral && stmt.toString().contains(diff.toString())) {
 						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE");
-						System.out.println(stmt.getParent());
-
+						//System.out.println(stmt.getParent());
+						System.out.println(newBlock);
 
 
 
@@ -416,10 +417,6 @@ public abstract class CCRefactoring {
 
 						VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
 						vdf.setName(ast.newSimpleName(varName));
-
-						System.out.println("diff.toString()  ->  " + diff.toString());
-
-						// (StringLiteral) ASTNode.copySubtree(ast.newStringLiteral().getAST()
 
 						StringLiteral nn = ast.newStringLiteral();
 						nn.setLiteralValue(diff.toString().replace("\"", ""));
@@ -432,21 +429,35 @@ public abstract class CCRefactoring {
 						System.out.println("Starting position: " + stmt.getStartPosition());
 
 
+						
+
+						
+						
+
+						
+						int index = oldBlock.statements().indexOf(stmt);
+						
+						
+						
+						oldBlock.statements().add(index - 1, vds);
+						
+						for(Object s: oldBlock.statements()) {
+							Statement s1 = (Statement) s;
+							s1.
+							newBlock.statements().add(ASTNode.copySubtree(s1.getAST(), s1));
+						}
+						
+						
 						VariableDeclarationFragment vdf_varname = ast.newVariableDeclarationFragment();
 						vdf_varname.setName(ast.newSimpleName(varName));
-
-
 						rewriter.replace(diff, vdf_varname, null);
-
-
-						int index = block.statements().indexOf(stmt);
-
-						block.statements().add(index - 1, vds);
+						
 
 
 
 						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER");
-						System.out.println(stmt.getParent());
+						//System.out.println(stmt.getParent());
+						System.out.println(newBlock);
 
 
 						int newStartingPosition = stmt.getStartPosition() + vds.getLength();
@@ -455,14 +466,9 @@ public abstract class CCRefactoring {
 
 					}
 				}
+				
+				rewriter.replace(oldBlock, newBlock, null);
 
-
-
-
-//				for(VariableDeclarationStatement vds: ssss) {
-//					int index = block.statements().indexOf(stmt);	
-//					block.statements().add(index - 1, vds);
-//				}
 
 				TextEdit edits = rewriter.rewriteAST(document, null);
 
@@ -476,6 +482,11 @@ public abstract class CCRefactoring {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				
+//				for(VariableDeclarationStatement vds: ssss) {
+//					int index = block.statements().indexOf(stmt);	
+//					block.statements().add(index - 1, vds);
+//				}
 
 			}
 
