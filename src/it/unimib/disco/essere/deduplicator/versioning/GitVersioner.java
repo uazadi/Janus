@@ -21,17 +21,18 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.revwalk.RevCommit;
 
 public class GitVersioner extends Versioner {
+
+	public static final String DEFAULT_BRANCH_NAME = 
+			"Code_clones_refactoring";
 	
 	Git repo;
 	LinkedList<RevCommit> commitHistory;
 
-	public GitVersioner(IJavaProject verionedProject) throws VersionerException {
+	public GitVersioner(IJavaProject verionedProject) {
 		super(verionedProject);
 
 		File projectPath = new File(getProjectPath(verionedProject));
 
-		commitHistory = new LinkedList<RevCommit>();
-		
 		verionedProject.getPath().toFile();
 
 		try {
@@ -39,16 +40,7 @@ public class GitVersioner extends Versioner {
 		} catch (IOException e2) {
 			try {
 				Git.init().setDirectory(projectPath).call();
-				
 				repo = Git.open(projectPath);
-				
-				List<String> files = new ArrayList<String>();
-				files.addAll(repo.status().call().getModified());
-				files.addAll(repo.status().call().getUntracked());
-				
-				this.commit(files);
-				
-				
 			} catch (IllegalStateException | GitAPIException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -58,7 +50,7 @@ public class GitVersioner extends Versioner {
 			}
 		}
 
-		
+		commitHistory = new LinkedList<RevCommit>();
 
 	}
 
@@ -79,7 +71,7 @@ public class GitVersioner extends Versioner {
 
 
 	@Override
-	public void commit(List<String> compilationUnitToCommit) throws VersionerException {
+	public void commit(List<String> compilationUnitToCommit) {
 		try {
 			CommitCommand commit = repo.commit();
 			
@@ -113,19 +105,20 @@ public class GitVersioner extends Versioner {
 
 			RevCommit revCommit = commit.setMessage(commitMessage).call();
 			commitHistory.add(revCommit);
-		} catch (NoWorkTreeException | GitAPIException | InterruptedException e) {
-			throw new VersionerException(e.getMessage());
+		} catch (NoWorkTreeException | GitAPIException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void rollback() throws VersionerException {
-		try {
-			repo.revert().include(commitHistory.pollLast()).call();
-		}catch(Exception e) {
-			 throw new VersionerException(e.getMessage());
-		}
+	public void rollback() {
+		repo.revert().include(commitHistory.pollLast());
 	}
+
 
 	@Override
 	public Object getRepo() {
@@ -134,32 +127,31 @@ public class GitVersioner extends Versioner {
 
 
 	@Override
-	public void newBranch(String branchName) throws VersionerException {
+	public void newBranch(String branchName) {
 		try {	
 			applyCheckout(branchName);
 		} catch(RefNotFoundException e1) {
+			repo.commit().setMessage("Initial commit");
 			try {
-				repo.commit().setMessage("Initial commit").call();
 				applyCheckout(branchName);
 			} catch (GitAPIException e) {
 				e.printStackTrace();
 			}
 		} 
-		catch (GitAPIException e) {
+		catch (GitAPIException e2) {
 			// TODO Auto-generated catch block
 			// TODO Handle case branch is already created!
-			throw new VersionerException(e.getMessage());
+			e2.printStackTrace();
 		}
 	}
 	
-	public void newBranch() throws VersionerException{
-		this.newBranch(Versioner.DEFAULT_BRANCH_NAME);
+	public void newBranch() {
+		this.newBranch(GitVersioner.DEFAULT_BRANCH_NAME);
 	}
 
 
-	private void applyCheckout(String branchName) 
-			throws GitAPIException, RefAlreadyExistsException, RefNotFoundException,
-				   InvalidRefNameException, CheckoutConflictException {
+	private void applyCheckout(String branchName) throws GitAPIException, RefAlreadyExistsException, RefNotFoundException,
+	InvalidRefNameException, CheckoutConflictException {
 		try {
 			repo.checkout()
 			.setCreateBranch(true)	

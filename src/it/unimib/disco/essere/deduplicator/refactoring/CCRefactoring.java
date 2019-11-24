@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,31 +23,21 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTMatcher;
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.corext.refactoring.code.ExtractMethodRefactoring;
 import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.text.edits.MalformedTreeException;
-import org.eclipse.text.edits.TextEdit;
 
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
 
@@ -235,8 +224,6 @@ public abstract class CCRefactoring {
 		ICompilationUnit workingCopy = getICompilationUnit(stmt);
 		workingCopy.becomeWorkingCopy(new NullProgressMonitor());
 
-		handleConstantConflict(workingCopy);
-
 		ExtractMethodRefactoring refactoring = new ExtractMethodRefactoring(
 				workingCopy, stmt.getStartPosition(), stmt.getLength());
 
@@ -252,7 +239,6 @@ public abstract class CCRefactoring {
 		Set<IMethod> extractedMethods = new HashSet<>();
 
 		for(ICompilationUnit workingCopy: this.icus_involved) {
-
 			workingCopy.commitWorkingCopy(true, new NullProgressMonitor());
 			workingCopy.reconcile(AST.JLS11, true, null, new NullProgressMonitor());
 
@@ -261,7 +247,6 @@ public abstract class CCRefactoring {
 			// Find the extracted methods
 			for(int j=0; j < methods.length; j++) {
 				IMethod im = methods[j];
-
 				if(im.getElementName().equals(this.extractedMethodName)){
 					extractedMethods.add(im);
 				}
@@ -269,14 +254,6 @@ public abstract class CCRefactoring {
 		}
 		return extractedMethods;
 	}
-
-	private void handleConstantConflict(ICompilationUnit workingCopy) {
-		CompilationUnit cu = this.fromICUtoCU(workingCopy);
-
-
-	}
-
-
 
 	protected void sortNodes(List<ASTNode> nodes) {
 		/** Sort the statements in descending order, in this way
@@ -305,7 +282,7 @@ public abstract class CCRefactoring {
 			while(extractedMethodsIterator.hasNext()) {
 				try {
 					IMethod extr = extractedMethodsIterator.next();
-
+					
 					// A method has to be kept if:
 					// 1) No other method has already been chosen
 					// AND
@@ -321,7 +298,7 @@ public abstract class CCRefactoring {
 						extr.delete(true, null);
 					}
 				}catch (JavaModelException e) {
-					// TODO Investigate methods inserted more then one time
+					// TODO Investigate methods inserted more tehn one time
 					// The method that should be handle has already be deleted. 
 					// This error can be ignored but is worth investigate why
 					// this happen.
@@ -340,7 +317,7 @@ public abstract class CCRefactoring {
 
 				ASTMatcher matcher = new ASTMatcher();
 
-				if(stmt1.subtreeMatch(matcher, stmt2)) {					
+				if(stmt1.subtreeMatch(matcher, stmt2)) {
 					System.out.println("[[[[[[[[[[[[[[[[EXACT MATCH]]]]]]]]]]]]]]]]");
 				}else {
 					System.out.println("[[[[[[[[[[[[[[[[NOT EXACT MATCH]]]]]]]]]]]]]]]]");					
@@ -350,184 +327,32 @@ public abstract class CCRefactoring {
 		}
 
 		if(cloneSet.size() > 1) {
-
-			Set<ASTNode> diffExprs = 
-					new HashSet<ASTNode>();
-
-			getDiffs(cloneSet, diffExprs);
-
-			Set<CompilationUnit> CompUnitActMod = new HashSet<>();
-
-			List<VariableDeclarationStatement> ssss = new ArrayList<VariableDeclarationStatement>();
-
-			for(ASTNode stmt: cloneSet) {
-
-				ASTNode tmp = stmt.getParent();
-				while(!(tmp instanceof CompilationUnit)) {
-					tmp = tmp.getParent();
+			for(List<ASTNode> diffs: getDiffs(cloneSet)) {
+				System.out.println("[CCRefactoring      ---      checkCloneType]" + diffs.size());
+				for(ASTNode diff: diffs) {
+					System.out.println("[CCRefactoring      ---      checkCloneType]" + diff.toString());
 				}
-				CompilationUnit cu = ((CompilationUnit) tmp);
-				if(!(CompUnitActMod.contains((CompilationUnit) cu))) {
-					cu.recordModifications();
-					CompUnitActMod.add((CompilationUnit) cu);
-				}
-
-				ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
-
-				//Block block = ((Block) stmt.getParent());
-				AST ast = cu.getAST();
-
-//				for(MethodDeclaration md: ((TypeDeclaration) cu.types().get(0)).getMethods()) 
-//					for(Object o: md.getBody().statements())
-//						if(stmt.equals(o)) {
-//							System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-//							block = (Block) stmt.getParent();
-//						}
-
-
-
-
-				ASTRewrite rewriter = ASTRewrite.create(ast);
-
-				String source = "";
-				try {
-					source = icu.getBuffer().getContents();
-				} catch (JavaModelException e) {
-					e.printStackTrace();
-				}
-				Document document = new Document(source);
-
-
-				Block newBlock = ast.newBlock();
-				Block oldBlock = (Block) stmt.getParent();
-
-				for(ASTNode diff: diffExprs) {
-
-
-
-					if(diff instanceof StringLiteral && stmt.toString().contains(diff.toString())) {
-						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE");
-						//System.out.println(stmt.getParent());
-						System.out.println(newBlock);
-
-
-
-						Random rand = new Random();
-						String varName = "const" + rand.nextInt(1000);
-
-						VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
-						vdf.setName(ast.newSimpleName(varName));
-
-						StringLiteral nn = ast.newStringLiteral();
-						nn.setLiteralValue(diff.toString().replace("\"", ""));
-						vdf.setInitializer(nn);
-
-						VariableDeclarationStatement vds = ast.newVariableDeclarationStatement(vdf);
-
-						vds.setType(ast.newSimpleType(ast.newSimpleName("String")));
-
-						System.out.println("Starting position: " + stmt.getStartPosition());
-
-
-						
-
-						
-						
-
-						
-						int index = oldBlock.statements().indexOf(stmt);
-						
-						
-						
-						oldBlock.statements().add(index - 1, vds);
-						
-						for(Object s: oldBlock.statements()) {
-							Statement s1 = (Statement) s;
-							s1.
-							newBlock.statements().add(ASTNode.copySubtree(s1.getAST(), s1));
-						}
-						
-						
-						VariableDeclarationFragment vdf_varname = ast.newVariableDeclarationFragment();
-						vdf_varname.setName(ast.newSimpleName(varName));
-						rewriter.replace(diff, vdf_varname, null);
-						
-
-
-
-						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER");
-						//System.out.println(stmt.getParent());
-						System.out.println(newBlock);
-
-
-						int newStartingPosition = stmt.getStartPosition() + vds.getLength();
-
-						stmt.setSourceRange(newStartingPosition, stmt.getLength());
-
-					}
-				}
-				
-				rewriter.replace(oldBlock, newBlock, null);
-
-
-				TextEdit edits = rewriter.rewriteAST(document, null);
-
-				try {
-					edits.apply(document);
-					String newSource = document.get();
-					icu.getBuffer().setContents(newSource);
-				} catch (MalformedTreeException | BadLocationException e) {
-					e.printStackTrace();
-				} catch (JavaModelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-//				for(VariableDeclarationStatement vds: ssss) {
-//					int index = block.statements().indexOf(stmt);	
-//					block.statements().add(index - 1, vds);
-//				}
-
 			}
-
-
-
-
-
-			//			for(CompilationUnit cu: CompUnitActMod) {
-			//				try {
-			//					ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
-			//					String source = icu.getBuffer().getContents();
-			//					Document document = new Document(source);
-			//					commitChanges(icu, cu, document);
-			//				} catch (MalformedTreeException | JavaModelException | BadLocationException e) {
-			//					e.printStackTrace();
-			//				}
-			//			}
 		}
-	}
-
-	protected void commitChanges(ICompilationUnit iUnit, CompilationUnit unit, Document document) throws MalformedTreeException, BadLocationException, JavaModelException {
-		TextEdit edits = unit.rewrite(document, iUnit.getJavaProject().getOptions(true));
-		edits.apply(document);
-
-		String newSource = document.get();
-		iUnit.getBuffer().setContents(newSource);
-
-		//		iUnit.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		//		iUnit.commitWorkingCopy(true, null);
-		//iUnit.discardWorkingCopy();
 	}
 
 
 	@SuppressWarnings("unchecked")
-	private void  getDiffs(List<ASTNode> nodes, Set<ASTNode> diff) {
+	private List<List<ASTNode>>  getDiffs(List<ASTNode> nodes) {
+		//ASTNode left, ASTNode right) {
+		List<List<ASTNode>> diffExprs = 
+				new ArrayList<List<ASTNode>>();
+
+		//		    List<StructuralPropertyDescriptor> props = left
+		//	                .structuralPropertiesForType();
 
 		List<StructuralPropertyDescriptor> props = nodes.get(0)
 				.structuralPropertiesForType();
 
 
 		for (StructuralPropertyDescriptor property : props) {
+
+			List<ASTNode> diff = new ArrayList<ASTNode>();
 
 			List<Object> strucProps = new ArrayList<Object>();
 
@@ -544,8 +369,6 @@ public abstract class CCRefactoring {
 						nodes.get(0) instanceof NumberLiteral    ||
 						nodes.get(0) instanceof StringLiteral    ||
 						nodes.get(0) instanceof TypeLiteral) {
-
-
 
 
 					if(!strucProps.stream().allMatch(strucProps.get(0)::equals)){
@@ -573,9 +396,11 @@ public abstract class CCRefactoring {
 
 
 				if(!newNodes.contains(null)) {
-
-					getDiffs(newNodes, diff);
+					diffExprs.addAll(getDiffs(newNodes));
 				}
+
+				//                	if(leftVal != null && rightVal != null)
+				//						diffExprs.addAll(getDiffs((ASTNode) leftVal, (ASTNode) rightVal));
 
 			} else if (property.isChildListProperty()) {
 
@@ -593,25 +418,28 @@ public abstract class CCRefactoring {
 
 
 
-					getDiffs(newNodes, diff);
+					diffExprs.addAll(getDiffs(newNodes));
 
 				}
 
+
+
+				//	                Iterator<ASTNode> leftValIt = ((Iterable<ASTNode>) leftVal)
+				//	                        .iterator();
+				//	                Iterator<ASTNode> rightValIt = ((Iterable<ASTNode>) rightVal)
+				//	                        .iterator();
+				//	                while (leftValIt.hasNext() && rightValIt.hasNext()) {
+				//	                    // recursively call this function on child nodes
+				//	                	diffExprs.addAll(getDiffs(leftValIt.next(), rightValIt.next()));
+				//						
+				//	                }
 			}
 		}
+		return diffExprs;
 	}
 
 
 	public abstract void apply()  throws UnsuccessfulRefactoringException;
-
-	protected CompilationUnit fromICUtoCU(ICompilationUnit icu) {
-		ASTParser parser = ASTParser.newParser(AST.JLS11); 
-		parser.setSource(icu);
-		parser.setResolveBindings(true); // we need bindings later on
-		parser.setProject(project);
-		CompilationUnit cu = (CompilationUnit) parser.createAST(null /* IProgressMonitor */); // parse
-		return cu;
-	}
 
 }
 

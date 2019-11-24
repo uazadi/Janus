@@ -102,12 +102,7 @@ public class CCExtractSuperclass extends CCRefactoring {
 
 				String s = ((TypeDeclaration) cu.types().get(0)).toString();
 
-				// new code to test
-				ICompilationUnit newIcu = (ICompilationUnit)cu.getJavaElement();
-				Document document = new Document(icu.getBuffer().toString());
-
-				//				Old version
-//				Document document = new Document(cu.toString());
+				Document document = new Document(cu.toString());
 
 				TextEdit edits = rewriter.rewriteAST(document, null);
 				edits.apply(document);
@@ -120,5 +115,14 @@ public class CCExtractSuperclass extends CCRefactoring {
 		String fullyQualifiedNameSuperClass = selectedICU.getTypes()[0].getPackageFragment().getElementName() + "." + superClassName;
 		IType superClassIType = project.findType(fullyQualifiedNameSuperClass);
 		icus_involved.add(superClassIType.getCompilationUnit());
+	}
+
+	private CompilationUnit fromICUtoCU(ICompilationUnit icu) {
+		ASTParser parser = ASTParser.newParser(AST.JLS11); 
+		parser.setSource(icu);
+		parser.setResolveBindings(true); // we need bindings later on
+		parser.setProject(project);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null /* IProgressMonitor */); // parse
+		return cu;
 	}
 }
