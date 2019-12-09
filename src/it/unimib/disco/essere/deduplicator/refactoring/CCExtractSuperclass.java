@@ -102,7 +102,12 @@ public class CCExtractSuperclass extends CCRefactoring {
 
 				String s = ((TypeDeclaration) cu.types().get(0)).toString();
 
-				Document document = new Document(cu.toString());
+				// new code to test
+				ICompilationUnit newIcu = (ICompilationUnit)cu.getJavaElement();
+				Document document = new Document(icu.getBuffer().toString());
+
+				//				Old version
+//				Document document = new Document(cu.toString());
 
 				TextEdit edits = rewriter.rewriteAST(document, null);
 				edits.apply(document);

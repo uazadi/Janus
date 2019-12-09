@@ -109,9 +109,9 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 				e2.printStackTrace();
 			}
 			
-//			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-//			IEditorPart editor = page.getActiveEditor();
-//			page.saveEditor(editor, false /* confirm */);
+			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+			IEditorPart editor = page.getActiveEditor();
+			page.saveEditor(editor, false /* confirm */);
 			
 			try {
 				for(ICompilationUnit icu: compUnitInvolved)
@@ -163,12 +163,12 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 
 			junitCheck.run();
 			
-//			try {
-//				versioner.rollback();
-//			} catch (VersionerException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			try {
+				versioner.rollback();
+			} catch (VersionerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}	
 
