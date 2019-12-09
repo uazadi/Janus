@@ -357,15 +357,15 @@ public abstract class CCRefactoring {
 					System.out.println(stmt.toString());
 					System.out.println(diff.toString());
 
-					if(stmt.toString().contains(diff.toString())) {
-						SingleVariableDeclaration svd = stmt.getAST().newSingleVariableDeclaration();
-						
-						AST ast = stmt.getAST();
-						svd.setType(ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String"))));
-						svd.setName(ast.newSimpleName("args"));
-						
-						  
-					}
+//					if(stmt.toString().contains(diff.toString())) {
+//						SingleVariableDeclaration svd = stmt.getAST().newSingleVariableDeclaration();
+//						
+//						AST ast = stmt.getAST();
+//						svd.setType(ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String"))));
+//						svd.setName(ast.newSimpleName("args"));
+//						
+//						svd.
+//					}
 
 				}
 			}

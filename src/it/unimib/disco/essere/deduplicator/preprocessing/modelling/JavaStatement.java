@@ -52,8 +52,8 @@ public class JavaStatement implements JavaComponent {
 	 * */
 	private String getParsedStatement(String toRemove) {
 		String parsedStmt = originalStatement;
-		if(toRemove.contains("const") || toRemove.contains("all"))
-			parsedStmt = removeConst(parent.getAllConstantValue(this.parent.getParent()), parsedStmt);
+//		if(toRemove.contains("const") || toRemove.contains("all"))
+//			parsedStmt = removeConst(parent.getAllConstantValue(this.parent.getParent()), parsedStmt);
 		if(toRemove.contains("var") || toRemove.contains("all"))
 			parsedStmt = removeVarNames(parent.getAllVariableNames(), parsedStmt);
 		if(toRemove.contains("comm") || toRemove.contains("all"))

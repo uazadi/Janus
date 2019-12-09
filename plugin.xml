@@ -32,7 +32,7 @@
                   id="helloWorldAction"
                   label="Hello World Action"
                   menubarPath="helloWorldMenu/group1"
-                  state="false"
+                  state="true"
                   style="push">
             </action>
       </actionSet>
@@ -43,7 +43,7 @@
       id="org.eclipse.ui.articles.action.contribution.popup.navigator"
    targetID="org.eclipse.jdt.ui.PackageExplorer"> 
 
-   <menu
+   <menu 
          id="org.eclipse.ui.articles.action.contribution.navigator.subMenu"
          label="Janus"
          path="additions">
@@ -65,16 +65,16 @@
    <extension point="org.eclipse.ui.popupMenus"> 
     <viewerContribution 
       id="org.eclipse.ui.articles.action.contribution.popup.navigator2"
-   targetID="org.eclipse.ui.navigator.ProjectExplorer#PopupMenu?after=additions"> 
+   targetID="org.eclipse.ui.navigator.ProjectExplorer#PopupMenu"> 
 
    <menu
-         id="org.eclipse.ui.articles.action.contribution.navigator.subMenu"
+         id="org.eclipse.ui.articles.action.contribution.navigator2.subMenu"
          label="Janus"
          path="additions">
       <separator name="group1"/>
       </menu>
       <action
-         id="org.eclipse.ui.articles.action.contribution.navigator.action1" 
+         id="org.eclipse.ui.articles.action.contribution.navigator2.action1" 
          label="Start Refactoring"
          icon="icons/save_edit.png"
       	 menubarPath="org.eclipse.ui.articles.action.contribution.navigator.subMenu/group1" 
@@ -86,5 +86,31 @@
       </action> 
 
    	</viewerContribution> 
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:customnavigator.navigator?before=import">
+         <command
+               commandId="org.eclipse.ui.edit.copy"
+               label="aaa"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.paste"
+               label="bbb"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.ui.edit.delete"
+               label="ccc"
+               style="push">
+         </command>
+         <separator
+               name="customnavigator.separator"
+               visible="true">
+         </separator>
+      </menuContribution>
    </extension>
 </plugin>

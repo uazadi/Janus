@@ -25,9 +25,12 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IViewActionDelegate;
+import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
@@ -46,7 +49,7 @@ import it.unimib.disco.essere.deduplicator.versioning.GitVersioner;
 import it.unimib.disco.essere.deduplicator.versioning.VersionerException;
 
 @SuppressWarnings("restriction")
-public class HelloWorldAction extends Action implements IWorkbenchWindowActionDelegate {
+public class HelloWorldAction extends Action implements IWorkbenchWindowActionDelegate, IViewActionDelegate {
 
 	private static final String JUNIT_NEW_TESTCASE_ID= "org.eclipse.jdt.junit.wizards.NewTestCaseCreationWizard";
 
@@ -55,13 +58,19 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 
 	@Override
 	public void run(IAction arg0) {
-		// MessageDialog.openInformation(window.getShell(), "FirstPlugin", "Hello,
-		// World!");
+		 //MessageDialog.openInformation(window.getShell(), "FirstPlugin", "Hello, World!");
 
 		IStructuredSelection selection = 
 				(IStructuredSelection) window.getSelectionService().getSelection();
 		Object firstElement = selection.getFirstElement();
 		
+		//myRun(firstElement);
+		
+		HomePage window = new HomePage();
+		window.launch();
+	}
+
+	private void myRun(Object firstElement) {
 		if (firstElement instanceof IAdaptable) {
 			if(firstElement instanceof Project) {
 				Project projectTmp = (Project) firstElement;
@@ -207,6 +216,10 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 	@Override
 	public void init(IWorkbenchWindow window) {
 		this.window = window;
+	}
+
+	@Override
+	public void init(IViewPart view) {
 	}
 
 }

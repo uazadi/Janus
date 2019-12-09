@@ -7,7 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jgit.api.CommitCommand;
@@ -63,18 +65,18 @@ public class GitVersioner extends Versioner {
 	}
 
 
-	private String getProjectPath(IJavaProject verionedProject) {
+	private String getProjectPath(IJavaProject versionedProject) {
 		String projectPath = "";
-		try {
-			String name = verionedProject.getElementName();
-			String[] cp = JavaRuntime.computeDefaultRuntimeClassPath (verionedProject);
-			int index = cp[0].lastIndexOf(name);
-			projectPath = cp[0].substring(0, index) + name + "/";
-		} catch (CoreException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
-		return projectPath;
+		
+		IPath path = ResourcesPlugin
+				        .getWorkspace()
+				        .getRoot()
+				        .findMember(versionedProject
+				        		        .getProject()
+				        		        .getFullPath())
+				        .getLocation();
+		
+		return path.toOSString();
 	}
 
 
