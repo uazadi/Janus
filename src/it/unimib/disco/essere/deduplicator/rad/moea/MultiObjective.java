@@ -29,11 +29,14 @@ public class MultiObjective extends CustomAbstractProblem {
 		this.objectives = objectives;
 	}
 	
-	public MultiObjective(InstancesHandler code_handler, int initialNumOfOnes) {
+	public MultiObjective(
+			InstancesHandler code_handler, 
+			int initialNumOfOnes,
+			List<Double> weightDupCode) {
 		this(code_handler, 
 			 new ArrayList<AbstractEvaluator>(
 					Arrays.asList(
-							new StatementsExactMatchEvaluator(code_handler),
+							new StatementsExactMatchEvaluator(code_handler, weightDupCode),
 							new VariableSimilarityEvaluator(code_handler),
 							new CodePositioningEvaluator(code_handler))),
 							//new NumberOfOnesEvaluator(code_handler))),
@@ -46,9 +49,6 @@ public class MultiObjective extends CustomAbstractProblem {
 		this(code_handler, objectives, CustomAbstractProblem.DEFAULT_INITIAL_NUM_OF_ONES);
 	}
 	
-	public MultiObjective(InstancesHandler code_handler) {
-		this(code_handler, CustomAbstractProblem.DEFAULT_INITIAL_NUM_OF_ONES);
-	}
 
 	@Override
 	public void evaluate(Solution solution) {

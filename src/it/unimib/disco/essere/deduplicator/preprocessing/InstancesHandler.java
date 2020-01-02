@@ -1,6 +1,7 @@
 package it.unimib.disco.essere.deduplicator.preprocessing;
 
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 public interface InstancesHandler {
 
@@ -60,5 +61,7 @@ public interface InstancesHandler {
 	 * @return the "local" nearest common superclass, NULL otherwise
 	 */
 	public String findNearestCommonSuperclass(String firstClassName, String secondClassName);
+	
+	public Set<String> getMainClasses();
 
 }

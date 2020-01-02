@@ -64,7 +64,7 @@ public class JUnitCheck extends BehavioralCheck {
 		return findJunitClasses(new JUnit5TestFinder());
 	}
 
-	public boolean run() {
+	public boolean run() throws BehevioralCheckException {
 
 		for(IType junitClass: this.junitClasses.keySet()) {
 			
@@ -110,8 +110,7 @@ public class JUnitCheck extends BehavioralCheck {
 						return false;
 
 				} catch (CoreException | MalformedURLException | ClassNotFoundException e) {
-					System.out.println("[JUnitCheck] Error in JUnit Class: " + name);
-					System.out.println("[JUnitCheck] The error is: " + e.getMessage());
+					throw new BehevioralCheckException();
 				}
 				
 			}

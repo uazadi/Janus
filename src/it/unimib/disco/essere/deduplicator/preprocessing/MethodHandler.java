@@ -1,8 +1,12 @@
 package it.unimib.disco.essere.deduplicator.preprocessing;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import it.unimib.disco.essere.deduplicator.preprocessing.exceptions.MethodNotFoundException;
 
@@ -28,12 +32,18 @@ public class MethodHandler implements InstancesHandler{
 	 *  (N.B. all classes have at least a superclass, which is java.lang.Object)
 	 */
 	private HashMap<String, LinkedHashSet<String>> hierarchyFullPathMap;
+	
+	/** List of the fully qualified names of all the classes that contain
+	 *  a main method.
+	 * */
+	private Set<String> mainClasses; 
 
 	private int minNumLines = 2;
 
 	private MethodHandler() {
 		this.methods = new HashMap<>();
 		this.hierarchyMap = new HashMap<>();
+		this.mainClasses = new HashSet<>();
 		this.lowerAvaibleIndex = 0;
 	}
 
@@ -64,6 +74,9 @@ public class MethodHandler implements InstancesHandler{
 		else 
 			superClass = ins.getFullSuperClassName();
 		hierarchyMap.put(ins.getClassName(), superClass);
+		
+		if(ins.isMain())
+			this.mainClasses.add(ins.getClassName());
 		
 		lowerAvaibleIndex++;
 		return lowerAvaibleIndex - 1; // -1 because I need to increment the counter before the return
@@ -121,7 +134,6 @@ public class MethodHandler implements InstancesHandler{
 	private void generateFullHierarchyPaths() {
 		hierarchyFullPathMap = new HashMap<>();
 		for(String javaClass: hierarchyMap.keySet()) {
-			//System.out.println(javaClass);
 			newEntry(javaClass);
 			addHierarchyPath(javaClass);
 		}
@@ -203,5 +215,10 @@ public class MethodHandler implements InstancesHandler{
 			hierarchyFullPathMap.get(javaClass).add(superClassName);
 			superClassName = getSuperClassName(superClassName);
 		}
+	}
+
+	@Override
+	public Set<String> getMainClasses() {
+		return this.mainClasses;
 	}
 }

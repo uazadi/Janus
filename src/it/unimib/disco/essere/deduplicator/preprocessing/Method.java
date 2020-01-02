@@ -73,6 +73,8 @@ public class Method implements Instance{
 	
 	private List<String> parsedStatements;
 	
+	private boolean isMain;
+	
 	
 	public Method(JavaMethod method) {
 		
@@ -93,7 +95,8 @@ public class Method implements Instance{
 		this.fullSuperClassName = this.buildFullSuperClassName(method.getParent());
 		this.numLines = method.getCharFreqInBody('\n');
 		this.parsedStatements = new ArrayList<String>();
-		
+		this.isMain = method.isMain();
+	
 		this.methodID = MethodHandler.getInstance().registerInstance(this);
 		
 		this.statements = new ArrayList<Pair<String, ASTNode>>();
@@ -222,6 +225,10 @@ public class Method implements Instance{
 				nodes.add(stmt.getValue());
 		}
 		return nodes;
+	}
+
+	public boolean isMain() {
+		return isMain;
 	}
 	
 }

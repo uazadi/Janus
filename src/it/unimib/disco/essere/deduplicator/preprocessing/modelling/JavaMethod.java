@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Statement;
 
 import it.unimib.disco.essere.deduplicator.preprocessing.Method;
@@ -57,6 +58,11 @@ public class JavaMethod extends JavaContainer {
 	 *  (integer string, boolean, char, null, static field)*/
 	private List<String> constantValues;
 
+	/** A method is considered a main method if it's static,
+	 *  called "main", (iii) it has one parameter of type
+	 *  String[] (array of String)
+	 * */
+	private boolean isMain;
 
 	/**
 	 * Create an instance of the class Method
@@ -74,10 +80,38 @@ public class JavaMethod extends JavaContainer {
 		/** node.isConstructor() generate problems when it load constructor methods of nested class */
 		this.returnType = (node.getReturnType2() == null) ? "contructor" : node.getReturnType2().toString() ;
 		this.children 	= this.extractChildren();
+		
+		this.isMain = checkIsMain();
 
 		// Register the method as an instance
 		new Method(this);
 		//this.id 		= InstanceHandbook.getInstance().registerInstance(new Method(this));
+	}
+
+	private boolean checkIsMain() {
+		boolean isStatic = false;
+		for(int i=0; i < node.modifiers().size(); i++) {
+			if(node.modifiers().get(i).toString().equals("static")) {
+				isStatic = true;
+				break;
+			}
+		}
+		
+		
+		boolean containStringArrayParam = false;
+		if(!node.parameters().isEmpty()) {
+			containStringArrayParam = node.parameters().get(0).toString().replace(" ", "").contains("String[]");
+		}
+				
+		if("main".equals(name) &&
+			isStatic &&
+			parameters.size() == 1 &&
+			containStringArrayParam
+			) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	private List<String> extractParameter() {
@@ -112,6 +146,10 @@ public class JavaMethod extends JavaContainer {
 
 	public String getBody() {
 		return body;
+	}
+	
+	public boolean isMain() {
+		return this.isMain;
 	}
 
 	/**

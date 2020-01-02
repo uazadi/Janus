@@ -201,7 +201,7 @@ public class MethodSelector {
 		//		int numberOfIteration = 100;
 		//		String resolutionMethod = "GA";
 
-		MultiObjective mo = new MultiObjective(ih, 30);
+		//MultiObjective mo = new MultiObjective(ih, 30);
 		int numberOfIteration = 30;
 		String resolutionMethod = "NSGA-II";
 
@@ -238,19 +238,19 @@ public class MethodSelector {
 		// ___________________________________________________________________________
 
 
-		MethodSelector ms = new MethodSelector(mo, resolutionMethod, numberOfIteration, ih);
-		List<List<ASTNode>> p = ms.selectInstances();
-
-		System.out.println("Size  ->  " + p.size());
-		System.out.println("[0:]  ->  " + p.get(0));
-
-		Instant finish = Instant.now();
-
-		long time1 = Duration.between(start, preprocessing).getSeconds();  //in millis
-		long time2 = Duration.between(preprocessing, finish).getSeconds();  //in millis
-
-		System.out.println("Loading time: " + time1);
-		System.out.println("Find solution time: " + time2);
+		//MethodSelector ms = new MethodSelector(mo, resolutionMethod, numberOfIteration, ih);
+//		List<List<ASTNode>> p = ms.selectInstances();
+//
+//		System.out.println("Size  ->  " + p.size());
+//		System.out.println("[0:]  ->  " + p.get(0));
+//
+//		Instant finish = Instant.now();
+//
+//		long time1 = Duration.between(start, preprocessing).getSeconds();  //in millis
+//		long time2 = Duration.between(preprocessing, finish).getSeconds();  //in millis
+//
+//		System.out.println("Loading time: " + time1);
+//		System.out.println("Find solution time: " + time2);
 	}
 
 }

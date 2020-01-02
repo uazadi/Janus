@@ -25,11 +25,13 @@ public class StatementsExactMatchEvaluator extends AbstractDuplicateCodeEvaluato
 	private double weightDCLength; 
 	private double weightNumOfCopies;
 	
-	public StatementsExactMatchEvaluator(InstancesHandler code_handler) {
+	public StatementsExactMatchEvaluator(
+			InstancesHandler code_handler,
+			List<Double> weights) {
 		super(code_handler);
-		setWeights(	WEIGHT_NUMBER_OF_COPIED_STATEMENTS, 
-					WEIGHT_AVG_DUPLICATE_CODE_LENGTH,  
-					WEIGHT_AVG_NUMBER_OF_COPIES);
+		setWeights(	weights.get(0), 
+				weights.get(1),  
+				weights.get(2));
 	}
 
 	public StatementsExactMatchEvaluator(

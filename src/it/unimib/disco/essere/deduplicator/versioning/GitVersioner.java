@@ -22,27 +22,36 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-public class GitVersioner extends Versioner {
+public class GitVersioner  {
+	
+	public static final String DEFAULT_BRANCH_NAME = "Code_clones_refactoring";
 	
 	Git repo;
 	LinkedList<RevCommit> commitHistory;
+	
+	public GitVersioner(String repoPath) throws VersionerException {
+		initialiseRepo(repoPath);
+	}
 
 	public GitVersioner(IJavaProject verionedProject) throws VersionerException {
-		super(verionedProject);
-
-		File projectPath = new File(getProjectPath(verionedProject));
 
 		commitHistory = new LinkedList<RevCommit>();
+		//verionedProject.getPath().toFile();
 		
-		verionedProject.getPath().toFile();
+		String projectPath = getProjectPath(verionedProject);
+		initialiseRepo(projectPath);
+	}
 
+	private void initialiseRepo(String path) throws VersionerException {
+		File folder = new File(path);
+		
 		try {
-			repo = Git.open(projectPath);
+			repo = Git.open(folder);
 		} catch (IOException e2) {
 			try {
-				Git.init().setDirectory(projectPath).call();
+				Git.init().setDirectory(folder).call();
 				
-				repo = Git.open(projectPath);
+				repo = Git.open(folder);
 				
 				List<String> files = new ArrayList<String>();
 				files.addAll(repo.status().call().getModified());
@@ -59,9 +68,6 @@ public class GitVersioner extends Versioner {
 				e.printStackTrace();
 			}
 		}
-
-		
-
 	}
 
 
@@ -79,8 +85,6 @@ public class GitVersioner extends Versioner {
 		return path.toOSString();
 	}
 
-
-	@Override
 	public void commit(List<String> compilationUnitToCommit) throws VersionerException {
 		try {
 			CommitCommand commit = repo.commit();
@@ -120,7 +124,6 @@ public class GitVersioner extends Versioner {
 		}
 	}
 
-	@Override
 	public void rollback() throws VersionerException {
 		try {
 			repo.revert().include(commitHistory.pollLast()).call();
@@ -129,13 +132,10 @@ public class GitVersioner extends Versioner {
 		}
 	}
 
-	@Override
 	public Object getRepo() {
 		return repo;
 	}
 
-
-	@Override
 	public void newBranch(String branchName) throws VersionerException {
 		try {	
 			applyCheckout(branchName);
@@ -155,7 +155,7 @@ public class GitVersioner extends Versioner {
 	}
 	
 	public void newBranch() throws VersionerException{
-		this.newBranch(Versioner.DEFAULT_BRANCH_NAME);
+		this.newBranch(GitVersioner.DEFAULT_BRANCH_NAME);
 	}
 
 

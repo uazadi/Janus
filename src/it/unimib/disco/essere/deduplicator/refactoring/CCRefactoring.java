@@ -349,174 +349,164 @@ public abstract class CCRefactoring {
 			}
 		}
 
-		if(cloneSet.size() > 1) {
-
-			Set<ASTNode> diffExprs = 
-					new HashSet<ASTNode>();
-
-			getDiffs(cloneSet, diffExprs);
-
-			Set<CompilationUnit> CompUnitActMod = new HashSet<>();
-
-			List<VariableDeclarationStatement> ssss = new ArrayList<VariableDeclarationStatement>();
-
-			for(ASTNode stmt: cloneSet) {
-
-				ASTNode tmp = stmt.getParent();
-				while(!(tmp instanceof CompilationUnit)) {
-					tmp = tmp.getParent();
-				}
-				CompilationUnit cu = ((CompilationUnit) tmp);
-				if(!(CompUnitActMod.contains((CompilationUnit) cu))) {
-					cu.recordModifications();
-					CompUnitActMod.add((CompilationUnit) cu);
-				}
-
-				ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
-
-				//Block block = ((Block) stmt.getParent());
-				AST ast = cu.getAST();
-
-//				for(MethodDeclaration md: ((TypeDeclaration) cu.types().get(0)).getMethods()) 
-//					for(Object o: md.getBody().statements())
-//						if(stmt.equals(o)) {
-//							System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-//							block = (Block) stmt.getParent();
-//						}
-
-
-
-
-				ASTRewrite rewriter = ASTRewrite.create(ast);
-
-				String source = "";
-				try {
-					source = icu.getBuffer().getContents();
-				} catch (JavaModelException e) {
-					e.printStackTrace();
-				}
-				Document document = new Document(source);
-
-
-				Block newBlock = ast.newBlock();
-				Block oldBlock = (Block) stmt.getParent();
-
-				for(ASTNode diff: diffExprs) {
-
-<<<<<<< HEAD
-//					if(stmt.toString().contains(diff.toString())) {
-//						SingleVariableDeclaration svd = stmt.getAST().newSingleVariableDeclaration();
-//						
-//						AST ast = stmt.getAST();
-//						svd.setType(ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String"))));
-//						svd.setName(ast.newSimpleName("args"));
-//						
-//						svd.
-//					}
-=======
-
-
-					if(diff instanceof StringLiteral && stmt.toString().contains(diff.toString())) {
-						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE");
-						//System.out.println(stmt.getParent());
-						System.out.println(newBlock);
-
-
-
-						Random rand = new Random();
-						String varName = "const" + rand.nextInt(1000);
-
-						VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
-						vdf.setName(ast.newSimpleName(varName));
-
-						StringLiteral nn = ast.newStringLiteral();
-						nn.setLiteralValue(diff.toString().replace("\"", ""));
-						vdf.setInitializer(nn);
-
-						VariableDeclarationStatement vds = ast.newVariableDeclarationStatement(vdf);
-
-						vds.setType(ast.newSimpleType(ast.newSimpleName("String")));
-
-						System.out.println("Starting position: " + stmt.getStartPosition());
-
-
-						
-
-						
-						
-
-						
-						int index = oldBlock.statements().indexOf(stmt);
-						
-						
-						
-						oldBlock.statements().add(index - 1, vds);
-						
-						for(Object s: oldBlock.statements()) {
-							Statement s1 = (Statement) s;
-							s1.
-							newBlock.statements().add(ASTNode.copySubtree(s1.getAST(), s1));
-						}
-						
-						
-						VariableDeclarationFragment vdf_varname = ast.newVariableDeclarationFragment();
-						vdf_varname.setName(ast.newSimpleName(varName));
-						rewriter.replace(diff, vdf_varname, null);
-						
-
-
-
-						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER");
-						//System.out.println(stmt.getParent());
-						System.out.println(newBlock);
-
-
-						int newStartingPosition = stmt.getStartPosition() + vds.getLength();
-
-						stmt.setSourceRange(newStartingPosition, stmt.getLength());
-
-					}
-				}
-				
-				rewriter.replace(oldBlock, newBlock, null);
+		//		if(cloneSet.size() > 1) {
+		//
+		//			Set<ASTNode> diffExprs = 
+		//					new HashSet<ASTNode>();
+		//
+		//			getDiffs(cloneSet, diffExprs);
+		//
+		//			Set<CompilationUnit> CompUnitActMod = new HashSet<>();
+		//
+		//			List<VariableDeclarationStatement> ssss = new ArrayList<VariableDeclarationStatement>();
+		//
+		//			for(ASTNode stmt: cloneSet) {
+		//
+		//				ASTNode tmp = stmt.getParent();
+		//				while(!(tmp instanceof CompilationUnit)) {
+		//					tmp = tmp.getParent();
+		//				}
+		//				CompilationUnit cu = ((CompilationUnit) tmp);
+		//				if(!(CompUnitActMod.contains((CompilationUnit) cu))) {
+		//					cu.recordModifications();
+		//					CompUnitActMod.add((CompilationUnit) cu);
+		//				}
+		//
+		//				ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
+		//
+		//				//Block block = ((Block) stmt.getParent());
+		//				AST ast = cu.getAST();
+		//
+		//				for(MethodDeclaration md: ((TypeDeclaration) cu.types().get(0)).getMethods()) 
+		//					for(Object o: md.getBody().statements())
+		//						if(stmt.equals(o)) {
+		//							System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+		//							block = (Block) stmt.getParent();
+		//						}
+		//
+		//
+		//
+		//
+		//				ASTRewrite rewriter = ASTRewrite.create(ast);
+		//
+		//				String source = "";
+		//				try {
+		//					source = icu.getBuffer().getContents();
+		//				} catch (JavaModelException e) {
+		//					e.printStackTrace();
+		//				}
+		//				Document document = new Document(source);
+		//
+		//
+		//				Block newBlock = ast.newBlock();
+		//				Block oldBlock = (Block) stmt.getParent();
+		//
+		//				for(ASTNode diff: diffExprs) {
+		//
+		//					if(stmt.toString().contains(diff.toString())) {
+		//						SingleVariableDeclaration svd = stmt.getAST().newSingleVariableDeclaration();
+		//						
+		//						AST ast = stmt.getAST();
+		//						svd.setType(ast.newArrayType(ast.newSimpleType(ast.newSimpleName("String"))));
+		//						svd.setName(ast.newSimpleName("args"));
+		//						
+		//						svd.
+		//					}
+		//
+		//
+		//					if(diff instanceof StringLiteral && stmt.toString().contains(diff.toString())) {
+		//						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BEFORE");
+		//						//System.out.println(stmt.getParent());
+		//						System.out.println(newBlock);
+		//
+		//
+		//
+		//						Random rand = new Random();
+		//						String varName = "const" + rand.nextInt(1000);
+		//
+		//						VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
+		//						vdf.setName(ast.newSimpleName(varName));
+		//
+		//						StringLiteral nn = ast.newStringLiteral();
+		//						nn.setLiteralValue(diff.toString().replace("\"", ""));
+		//						vdf.setInitializer(nn);
+		//
+		//						VariableDeclarationStatement vds = ast.newVariableDeclarationStatement(vdf);
+		//
+		//						vds.setType(ast.newSimpleType(ast.newSimpleName("String")));
+		//
+		//						System.out.println("Starting position: " + stmt.getStartPosition());
+		//
+		//						
+		//						int index = oldBlock.statements().indexOf(stmt);
+		//						
+		//						
+		//						
+		//						oldBlock.statements().add(index - 1, vds);
+		//						
+		//						for(Object s: oldBlock.statements()) {
+		//							Statement s1 = (Statement) s;
+		//							s1.
+		//							newBlock.statements().add(ASTNode.copySubtree(s1.getAST(), s1));
+		//						}
+		//						
+		//						
+		//						VariableDeclarationFragment vdf_varname = ast.newVariableDeclarationFragment();
+		//						vdf_varname.setName(ast.newSimpleName(varName));
+		//						rewriter.replace(diff, vdf_varname, null);
+		//						
+		//
+		//
+		//
+		//						System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% AFTER");
+		//						//System.out.println(stmt.getParent());
+		//						System.out.println(newBlock);
+		//
+		//
+		//						int newStartingPosition = stmt.getStartPosition() + vds.getLength();
+		//
+		//						stmt.setSourceRange(newStartingPosition, stmt.getLength());
+		//
+		//					}
+		//				}
+		//				
+		//				rewriter.replace(oldBlock, newBlock, null);
+		//
+		//
 
 
-				TextEdit edits = rewriter.rewriteAST(document, null);
->>>>>>> 34fc053021ec8844a3c75dde525b997bba30b3f4
-
-				try {
-					edits.apply(document);
-					String newSource = document.get();
-					icu.getBuffer().setContents(newSource);
-				} catch (MalformedTreeException | BadLocationException e) {
-					e.printStackTrace();
-				} catch (JavaModelException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-//				for(VariableDeclarationStatement vds: ssss) {
-//					int index = block.statements().indexOf(stmt);	
-//					block.statements().add(index - 1, vds);
-//				}
-
-			}
+		//				try {
+		//					edits.apply(document);
+		//					String newSource = document.get();
+		//					icu.getBuffer().setContents(newSource);
+		//				} catch (MalformedTreeException | BadLocationException e) {
+		//					e.printStackTrace();
+		//				} catch (JavaModelException e) {
+		//					// TODO Auto-generated catch block
+		//					e.printStackTrace();
+		//				}
+		//				
+		//				for(VariableDeclarationStatement vds: ssss) {
+		//					int index = block.statements().indexOf(stmt);	
+		//					block.statements().add(index - 1, vds);
+		//				}
+		//
+		//			}
 
 
 
 
 
-			//			for(CompilationUnit cu: CompUnitActMod) {
-			//				try {
-			//					ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
-			//					String source = icu.getBuffer().getContents();
-			//					Document document = new Document(source);
-			//					commitChanges(icu, cu, document);
-			//				} catch (MalformedTreeException | JavaModelException | BadLocationException e) {
-			//					e.printStackTrace();
-			//				}
-			//			}
-		}
+		//			for(CompilationUnit cu: CompUnitActMod) {
+		//				try {
+		//					ICompilationUnit icu = (ICompilationUnit)cu.getJavaElement();
+		//					String source = icu.getBuffer().getContents();
+		//					Document document = new Document(source);
+		//					commitChanges(icu, cu, document);
+		//				} catch (MalformedTreeException | JavaModelException | BadLocationException e) {
+		//					e.printStackTrace();
+		//				}
+		//			}
 	}
 
 	protected void commitChanges(ICompilationUnit iUnit, CompilationUnit unit, Document document) throws MalformedTreeException, BadLocationException, JavaModelException {

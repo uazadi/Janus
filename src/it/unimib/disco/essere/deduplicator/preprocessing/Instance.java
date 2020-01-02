@@ -51,4 +51,6 @@ public interface Instance {
 	
 	public List<ASTNode> getStatement(String parsedStatement);
 	
+	public boolean isMain();
+	
 }

@@ -46,25 +46,17 @@ public class SingleObjective extends CustomAbstractProblem {
 	//	ffs.add(evalRR);
 	//	ws.add(new Double(0.5));
 
+
 	public SingleObjective(
 			InstancesHandler codeHandler,
-			List<AbstractEvaluator> objectives,
-			List<Double> weights) throws Exception {
-
-		this(codeHandler, 
-				objectives, 
-				weights, 
-				CustomAbstractProblem.DEFAULT_INITIAL_NUM_OF_ONES);
-	}
-
-	public SingleObjective(
-			InstancesHandler codeHandler) throws Exception {
+			List<Double> weightsDupCode,
+			List<Double> weightRefRisk) throws Exception {
 
 		this(codeHandler, 
 				new ArrayList<AbstractEvaluator>(
 						Arrays.asList(
-								new StatementsExactMatchEvaluator(codeHandler),
-								new RefactoringRisksEvaluator(codeHandler))),
+								new StatementsExactMatchEvaluator(codeHandler, weightsDupCode),
+								new RefactoringRisksEvaluator(codeHandler, weightRefRisk))),
 				new ArrayList<Double>(
 						Arrays.asList(
 								SingleObjective.STANDARD_WEIGHT,

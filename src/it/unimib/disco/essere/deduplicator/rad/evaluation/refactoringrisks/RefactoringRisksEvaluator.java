@@ -1,5 +1,7 @@
 package it.unimib.disco.essere.deduplicator.rad.evaluation.refactoringrisks;
 
+import java.util.List;
+
 import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.deduplicator.rad.Member;
 
@@ -19,9 +21,9 @@ public class RefactoringRisksEvaluator extends AbstractRefRisksEvaluator {
 	
 	
 
-	public RefactoringRisksEvaluator(InstancesHandler code_handler) {
+	public RefactoringRisksEvaluator(InstancesHandler code_handler, List<Double> weights) {
 		super(code_handler);
-		setWeights(WEIGHT_VARIABLE_SIMILARITY, WEIGHT_CODE_POSITIONING);
+		setWeights(weights.get(0), weights.get(1));
 		varSimil = new VariableSimilarityEvaluator(code_handler);
 		codePosit = new CodePositioningEvaluator(code_handler);
 		funIn = new FunInMetricEvaluator(code_handler);

@@ -8,12 +8,16 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import org.eclipse.core.runtime.CoreException;
+
 import java.awt.BorderLayout;
 import java.awt.Window.Type;
 import java.awt.Font;
 import java.awt.Color;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.ActionEvent;
 import javax.swing.SwingConstants;
 import javax.swing.BoxLayout;
@@ -30,7 +34,8 @@ public class HomePage extends GUIClass {
 	/**
 	 * Create the application.
 	 */
-	public HomePage() {
+	public HomePage(Configuration config) {
+		super(config);
 		initialize();
 	}
 
@@ -43,9 +48,9 @@ public class HomePage extends GUIClass {
 		frame.setBackground(Color.BLACK);
 		frame.setFont(new Font("Lato", Font.PLAIN, 12));
 		frame.setAlwaysOnTop(true);
-		frame.setBounds(100, 100, 736, 504);
+		frame.setBounds(100, 100, 700, 500);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(3, 0, 20, 20));
+		frame.getContentPane().setLayout(new GridLayout(5, 0, 20, 20));
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
 
@@ -79,6 +84,50 @@ public class HomePage extends GUIClass {
 
 		JButton btnStepByStep = new JButton("Refactoring \n step-by-step");
 		panel_second_row.add(btnStepByStep);
+		
+		btnStepByStep.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				config.runStepByStep = true;
+				
+				frame.dispose();
+				
+				try {
+					ConfigurationPage window = new ConfigurationPage(config);
+					window.launch();
+				} catch (CoreException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+			}
+		});
+
 
 		JPanel panel_2_3 = new JPanel();
 		panel_second_row.add(panel_2_3);
@@ -93,15 +142,9 @@ public class HomePage extends GUIClass {
 
 		JPanel panel_2_3_2_1 = new JPanel();
 		panel_2_3_2.add(panel_2_3_2_1);
-
-		JButton btnInfoStepByStep = new JButton("");
-		btnInfoStepByStep.setIcon(
-				new ImageIcon(
-						"/home/umberto/Desktop/Tesi/eclipse_workspace/it.package.helloword/icons/info.png"));
 		
-		btnInfoStepByStep.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				showInfo( "Short explaination:\n"
+		JLabel labelInfoStepByStep = this.getInfoLabel(
+				"Short explaination:\n"
 						+ "Use this type of execution  if you don't yet trust\n"
 						+ "me or if you are not familiar on how to set me."
 						+ "\n\n" 
@@ -113,11 +156,8 @@ public class HomePage extends GUIClass {
 						+ "Furthermore  when  I  will do something that you\n"
 						+ "don't  like, I will  ask you the reason in order to\n"
 						+ "improve and better understand your needs.", 
-						"Info on Step-by-Step execution");
-			} 
-		});
-		
-		panel_2_3_2.add(btnInfoStepByStep);
+				"Info on step-by-step execution");
+		panel_2_3_2.add(labelInfoStepByStep, BorderLayout.EAST);
 		// End construct second row -----------------------------------------
 
 		// Begin construct third row -----------------------------------------
@@ -131,6 +171,50 @@ public class HomePage extends GUIClass {
 
 		JButton btnAutonomus = new JButton("Refactoring \n autonomus");
 		panel_third_row.add(btnAutonomus);
+		
+		btnAutonomus.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				config.runStepByStep = false;
+				
+				frame.dispose();
+				
+				try {
+					ConfigurationPage window = new ConfigurationPage(config);
+					window.launch();
+				} catch (CoreException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+			}
+		});
+		
 
 		JPanel panel_3_3 = new JPanel();
 		panel_third_row.add(panel_3_3);
@@ -145,15 +229,9 @@ public class HomePage extends GUIClass {
 
 		JPanel panel_3_3_2_1 = new JPanel();
 		panel_3_3_2.add(panel_3_3_2_1);
-
-		JButton btnInfoAutonomus = new JButton("");
-		btnInfoAutonomus.setIcon(
-				new ImageIcon(
-						"/home/umberto/Desktop/Tesi/eclipse_workspace/it.package.helloword/icons/info.png"));
 		
-		btnInfoAutonomus.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				showInfo( "Short explaination:\n"
+		JLabel labelInfoAutonomus = this.getInfoLabel(
+				"Short explaination:\n"
 						+ "Use this type of execution if you already trust\n"
 						+ "me and if you are already familiar on how to set me."
 						+ "\n\n" 
@@ -165,12 +243,26 @@ public class HomePage extends GUIClass {
 						+ "rollback all the changes beacuse I will make sure that\n"
 						+ "the folder is a Git repository and I will commit every\n"
 						+ "change that I am going to make.",
-						"Info on Autonomus execution");
-			} 
-		});
-		panel_3_3_2.add(btnInfoAutonomus);
+				"Info on autonomus execution");
+		panel_3_3_2.add(labelInfoAutonomus, BorderLayout.EAST);
 		// End construct third row -----------------------------------------
 
+	}
+	
+	/**
+	 * Just for test
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					HomePage window = new HomePage(null);
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 }
