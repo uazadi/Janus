@@ -50,4 +50,6 @@ Bundle-ClassPath: .,
  lib/org.apache.commons.math3_3.4.1.jar,
  lib/org.moeaframework_2.12.0.jar,
  lib/commons-exec-1.3.jar,
- jgoodies-forms-1.8.0.jar
+ jgoodies-forms-1.8.0.jar,
+ lib/jfreechart-1.0.15.jar,
+ lib/jcommon-1.0.21.jar

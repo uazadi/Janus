@@ -2,6 +2,7 @@
 package it.unimib.disco.essere.deduplicator.refactoring;
 
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -62,8 +63,8 @@ public class CCExtractSuperclass extends CCRefactoring {
 
 		IMember[] ims = {kept};
 		
-		
-		String superClassName = "Prova";
+		Random rand = new Random();
+		String superClassName = "Prova" + rand.nextInt(1000);
 		
 
 		ExtractSupertypeProcessor refactoring = new ExtractSupertypeProcessor(ims, settings);

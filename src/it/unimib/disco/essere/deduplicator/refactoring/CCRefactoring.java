@@ -68,14 +68,20 @@ public abstract class CCRefactoring {
 
 		List<CCRefactoring> refactorings = new ArrayList<>();
 
+		int index = 0;
 		for(List<ASTNode> cloneSet: cloneSets) {
 
 			CCRefactoring refactoring = null;
+			
+			System.out.println("________________________________________________" + index);
+			index++;
 
 			for(int i=0; i < cloneSet.size(); i++) {
 				Statement stmt = (Statement) cloneSet.get(i);
-				System.out.println("[CCRefactoring - selectRefactoringTechniques] Method" + ((MethodDeclaration) stmt.getParent().getParent()).getName());
-				System.out.println("[CCRefactoring - selectRefactoringTechniques]\n" + stmt.toString());
+				System.out.println("[CCRefactoring - selectRefactoringTechniques] Package " + ((CompilationUnit) stmt.getParent().getParent().getParent().getParent()).getPackage());
+				System.out.println("[CCRefactoring - selectRefactoringTechniques] Class " + ((TypeDeclaration) stmt.getParent().getParent().getParent()).getName());
+				System.out.println("[CCRefactoring - selectRefactoringTechniques] Method " + ((MethodDeclaration) stmt.getParent().getParent()).getName());
+				//System.out.println("[CCRefactoring - selectRefactoringTechniques]\n" + stmt.toString());
 			}
 
 			List<ICompilationUnit> icus_involved = new LinkedList<>();
@@ -242,8 +248,16 @@ public abstract class CCRefactoring {
 
 		this.extractedMethodName = refactoring.getMethodName();
 		refactoring.checkAllConditions(new NullProgressMonitor());
-		Change change = refactoring.createChange(new NullProgressMonitor());
-		change.perform(new NullProgressMonitor());
+		
+		Change change = null;
+		
+		try {
+			change = refactoring.createChange(new NullProgressMonitor());
+			change.perform(new NullProgressMonitor());
+		}catch(NullPointerException e) {
+			System.out.println("[CCREefactoring] ERROR NullPointerException during creation of the change");
+		}
+	
 
 		return workingCopy;
 	}

@@ -37,8 +37,6 @@ public class ConfigurationTestTab extends GUIClass{
 		JPanel mainListPanel = new JPanel();
 		mainClassesPanel.add(mainListPanel, BorderLayout.CENTER);
 
-		System.out.println("----------------> " + config.mainClasses);
-
 		for(String mainClass: config.mainClasses) {
 
 			JCheckBox chckbxTestCase = new JCheckBox(mainClass);
@@ -53,9 +51,6 @@ public class ConfigurationTestTab extends GUIClass{
 						config.mainClasses.add(mainClass);
 					else
 						config.mainClasses.remove(mainClass);
-					
-
-					System.out.println("==================> " + config.mainClasses);
 				}
 			});
 		}

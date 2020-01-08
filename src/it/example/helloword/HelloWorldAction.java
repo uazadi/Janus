@@ -83,9 +83,7 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 		try {
 			InstancesHandler ih = pf.parseSourceCode(selectedProject);
 			config.mainClasses = ih.getMainClasses();
-			
-			System.out.println("----------------> " + config.mainClasses);
-			
+			ih.clear();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

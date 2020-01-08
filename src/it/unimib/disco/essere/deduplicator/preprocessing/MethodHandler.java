@@ -43,6 +43,7 @@ public class MethodHandler implements InstancesHandler{
 	private MethodHandler() {
 		this.methods = new HashMap<>();
 		this.hierarchyMap = new HashMap<>();
+		//this.hierarchyFullPathMap = new HashMap<String, LinkedHashSet<String>>();
 		this.mainClasses = new HashSet<>();
 		this.lowerAvaibleIndex = 0;
 	}

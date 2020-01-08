@@ -196,28 +196,17 @@ public class ConfigurationPage extends GUIClass{
 				WorkflowHandler handler = WorkflowHandler.getInstance();
 				handler.setConfig(config);
 				
-				System.out.println("%%%%%%%%%%%%%%%%%%% " + config.mainClasses);
-				
 				try {
 					handler.initGitRepo();
 					
-					System.out.println("1 £££££££££££££££££££££££££££ " + config.mainClasses);
-					
 					handler.selectClones();
-					
-					System.out.println("2 £££££££££££££££££££££££££££ " + config.mainClasses);
 					
 					handler.accomplishRefactoring();
 					
-					System.out.println("3 £££££££££££££££££££££££££££ " + config.mainClasses);
-					
 					handler.saveChanges();
 					
-					System.out.println("4 £££££££££££££££££££££££££££ " + config.mainClasses);
-					
 					handler.commitChanges();
-					
-					System.out.println("5 £££££££££££££££££££££££££££ " + config.mainClasses);
+
 					
 					if(!handler.runTests(config))
 						handler.rollbackChanges();

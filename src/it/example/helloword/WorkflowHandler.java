@@ -61,6 +61,8 @@ public class WorkflowHandler {
 	}
 	
 	public void initGitRepo() throws VersionerException {
+		System.out.println("[WorkflowHandler] Initiating git repo...");
+		
 		if(config.gitRepo == null || config.gitRepo.equals("")) {
 			versioner = new GitVersioner(config.selectedProject);
 		}else {
@@ -71,6 +73,8 @@ public class WorkflowHandler {
 	}
 
 	public void saveChanges() throws JavaModelException {
+		
+		System.out.println("[WorkflowHandler] Saving changes...");
 
 		for(ICompilationUnit icu: compUnitInvolved) {
 			icu.commitWorkingCopy(true, new NullProgressMonitor());
@@ -86,6 +90,9 @@ public class WorkflowHandler {
 	}
 
 	public void commitChanges() throws VersionerException {
+		
+		System.out.println("[WorkflowHandler] Commiting changes...");
+		
 		List<String> pathOfCompUnitInvolved = new ArrayList<String>();
 		for(ICompilationUnit icu: compUnitInvolved) {
 			pathOfCompUnitInvolved.add(icu.getPath().toString());
@@ -95,9 +102,10 @@ public class WorkflowHandler {
 	}
 
 	public boolean runTests(Configuration conf2) throws BehevioralCheckException {
+		
+		System.out.println("[WorkflowHandler] Running tests...");
+		
 		//new CheckCompilation().check(config.selectedProject);
-
-		System.out.println("!!!!!!!!!!!!!!!! " + conf2.mainClasses);
 		
 		MainClassCheck mainCheck = new MainClassCheck(conf2.selectedProject, conf2.mainClasses);
 		boolean mainResults = mainCheck.run();
@@ -118,10 +126,15 @@ public class WorkflowHandler {
 	}
 
 	public void rollbackChanges() throws VersionerException {
+		
+		System.out.println("[WorkflowHandler] Applying rollback...");
+		
 		versioner.rollback();
 	}
 
 	public List<List<ASTNode>> selectClones() {
+		
+		System.out.println("[WorkflowHandler] Detectiong the clones to refactor...");
 
 		try {
 			
@@ -160,22 +173,31 @@ public class WorkflowHandler {
 	
 	public void accomplishRefactoring() throws JavaModelException {
 		
+		System.out.println("[WorkflowHandler] Appling refactoring...");
+		
 		List<CCRefactoring> refactorings;
 		
 		compUnitInvolved = new ArrayList<ICompilationUnit>();
 		
 		try {
 			refactorings = CCRefactoring.selectRefactoringTechniques(ih, clones, config.selectedProject);
+			
+			System.out.println("------------------>" + refactorings.size());
+			
 			for(CCRefactoring ccr: refactorings) {
+				System.out.println("[WorkflowHandler] Technique selected: " + ccr.getClass());
 				ccr.apply();
 				compUnitInvolved.addAll(ccr.getCompilationUnitInvolved());
 			}
 
 			ih.clear();
 		} catch (NotRefactorableCodeClones | UnsuccessfulRefactoringException e) {
-			if(!config.suggestNotExactMatch) {
-				//TODO add this method to the one that should not be refactored
-			}
+			
+			e.printStackTrace();
+			
+//			if(!config.suggestNotExactMatch) {
+//				//TODO add this method to the one that should not be refactored
+//			}
 		}
 		
 		
