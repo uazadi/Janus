@@ -47,7 +47,7 @@ public class CodePositioningEvaluator extends AbstractRefRisksEvaluator{
 		
 		double sum = sumPenalties(member);
 		double size = member.getSelectedInstances().size();
-		return computeAvg(sum, size);
+		return Math.log(computeAvg(sum, size));
 	}
 
 	private double sumPenalties(Member member) {

@@ -94,6 +94,8 @@ public class MethodSelector {
 		String bestSolution = "";
 		if (problem instanceof CustomAbstractProblem) {
 			Map<String, String> solStmts = ((CustomAbstractProblem) problem).getValues(algorithm.getResult());
+			
+			//System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " + solStmts);
 
 			// Find the solutions that contain the statement
 			// that is duplicated the most
@@ -108,7 +110,7 @@ public class MethodSelector {
 				}
 			}
 
-			mostFreqStmt.addAll(Arrays.asList(mostFreqStmtStr.split("\n")));
+			mostFreqStmt.addAll(Arrays.asList(mostFreqStmtStr.split("\n&%&")));
 
 			// Find the solution that contain the minimum number of 1s
 			int minNumOfOnes = Integer.MAX_VALUE;

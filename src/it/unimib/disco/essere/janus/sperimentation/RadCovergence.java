@@ -1,5 +1,6 @@
 package it.unimib.disco.essere.janus.sperimentation;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -21,6 +22,7 @@ import it.unimib.disco.essere.janus.rad.moea.CustomAbstractProblem;
 import it.unimib.disco.essere.janus.rad.moea.MethodSelector;
 import it.unimib.disco.essere.janus.rad.moea.MultiObjective;
 import it.unimib.disco.essere.janus.rad.moea.SingleObjective;
+import it.unimib.disco.essere.janus.gui.Utils;
 
 public class RadCovergence {
 
@@ -30,8 +32,8 @@ public class RadCovergence {
 
 	public static void main(String[] args) throws Exception {
 		PreprocessingFacade preprossesing = new PreprocessingFacade();
-		InstancesHandler ih = preprossesing.parseSourceCode("/home/umberto/Documents/WN_Sources/jasml/jasml-0.10/src/src");
-
+		
+		
 
 		List<Double> weightDupCode = new ArrayList<Double>();
 		weightDupCode.add(0, 0.33);
@@ -42,26 +44,86 @@ public class RadCovergence {
 		weightRefRisk.add(1, 0.5);
 
 
-		int numOfItertion = 100;
-		int numOfAttempt = 1;
+		int numOfItertion = 60;
+		//int numOfAttempt = 100;
 
-
-		runMultiObjSelector(ih, weightDupCode, numOfItertion, numOfAttempt, "DBEA", "");
+		//List<List<String>> algs = Utils.loadAlgorithmsConfigFile();
+		
+		
+//		for(List<String> alg: algs) {
+//			InstancesHandler ih = preprossesing.parseSourceCode(args[0]);
+//			runMultiObjSelector(
+//					ih, 
+//					weightDupCode, 
+//					weightRefRisk,
+//					alg.get(1),
+//					numOfItertion, 
+//					numOfAttempt,
+//					alg.get(0), 
+//					args[0].split("/")[args[0].split("/").length - 1]);
+//			ih.clear();
+//		}
+//		
+		InstancesHandler ih = preprossesing.parseSourceCode(args[0]);
+		runMultiObjSelector(
+				ih, 
+				weightDupCode, 
+				weightRefRisk,
+				"Single",
+				numOfItertion, 
+				5,
+				"GA", 
+				args[0].split("/")[args[0].split("/").length - 1]);
+		ih.clear();
+		
+		ih = preprossesing.parseSourceCode(args[0]);
+		runMultiObjSelector(
+				ih, 
+				weightDupCode, 
+				weightRefRisk,
+				"Multi",
+				numOfItertion, 
+				10,
+				"NSGAII", 
+				args[0].split("/")[args[0].split("/").length - 1]);
+		ih.clear();
+		
+		ih = preprossesing.parseSourceCode(args[0]);
+		runMultiObjSelector(
+				ih, 
+				weightDupCode, 
+				weightRefRisk,
+				"Multi",
+				numOfItertion, 
+				10,
+				"NSGAIII", 
+				args[0].split("/")[args[0].split("/").length - 1]);
+		ih.clear();
 
 	}
 
 	private static void runMultiObjSelector(
 			InstancesHandler ih, 
 			List<Double> weightDupCode, 
+			List<Double> weightRefRisk,
+			String type,
 			int numOfItertion,
 			int numOfAttempt,
 			String algorithm,
-			String project) {
+			String project) throws Exception {
 
+		System.out.println("====================================0" + algorithm + "  -  " + project);
+		
 		PrintWriter writer;
 		try {
-			writer = new PrintWriter(algorithm + "_" + project + ".json", "UTF-8");
+			
+			File file = new File("/home/uazadi/Desktop/RAD_Results/" + project);
+			System.out.println(file.mkdir());
+			
+			//writer = new PrintWriter("/home/uazadi/Desktop/RAD_Results/" + project + "/" + algorithm + ".json", "UTF-8");
 
+			writer = new PrintWriter(file.getAbsolutePath() + "/" + algorithm + ".json", "UTF-8");
+			
 			writer.println("{");
 
 			writer.println("\t\"algorithm\": \"" + algorithm + "\",");
@@ -73,19 +135,33 @@ public class RadCovergence {
 
 				System.out.println("Printing iteration: " + i);
 
+				
+
+				MethodSelector ms = null;
+				
+				if(type.equals("Multi"))
+					ms =new MethodSelector(
+							new MultiObjective(ih, 30, weightDupCode), 
+							algorithm, 
+							numOfItertion, 
+							ih);
+				else
+					ms =new MethodSelector(
+							new SingleObjective(ih, weightDupCode, weightRefRisk), 
+							algorithm, 
+							numOfItertion, 
+							ih);
+				
+				
 				Instant start = Instant.now();
-
-				MethodSelector ms =new MethodSelector(
-						new MultiObjective(ih, 30, weightDupCode), 
-						algorithm, 
-						numOfItertion, 
-						ih);
-
+				
+				List<List<ASTNode>> clones = ms.selectInstances();
+				
 				Instant end = Instant.now();
 
 				long time = Duration.between(start, end).getSeconds();
 
-				List<List<ASTNode>> clones = ms.selectInstances();
+				
 				List<List<Double>> values = ms.getListOfFittests();
 
 				writer.println("\t\t{");
@@ -126,7 +202,12 @@ public class RadCovergence {
 					info = info.substring(0, info.length() - 2) + "\n"
 							+ "\t\t\t\t\t],\n";
 
-					info += "\t\t\t\t\t\"fittest_code\": \"" + clones.get(j).get(0).toString().replace("\n", " <newline> ") + "\"\n";
+					info += "\t\t\t\t\t\"fittest_code\": \"" + 
+								clones.get(j).get(0).toString()
+									.replace("\n", "")
+									.replace("\\\"", "") 
+									.replace("\"", "")
+									+ "\"\n";
 					info += "\t\t\t\t}";
 
 					clonesJson += info + ",\n";

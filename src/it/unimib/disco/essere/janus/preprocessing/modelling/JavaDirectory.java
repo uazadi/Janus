@@ -1,5 +1,6 @@
 package it.unimib.disco.essere.janus.preprocessing.modelling;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
@@ -9,6 +10,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -16,6 +19,8 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
+
+import it.unimib.disco.essere.janus.gui.Utils;
 
 public class JavaDirectory extends JavaContainer {
 	
@@ -72,6 +77,13 @@ public class JavaDirectory extends JavaContainer {
 	
 
 	private List<JavaComponent> extractFromEclipse() {
+		
+		IProject p = eclipseProject.getProject();
+	    File file = p.getFile(".janusignore").getFullPath().toFile();
+		List<Object> toBeIgnore = Utils.checkJanusignore(file, "package");
+		
+		System.out.println(toBeIgnore);
+		
 		List<JavaComponent> javaFiles = new LinkedList<JavaComponent>();
 		try {
 			for (IPackageFragmentRoot pfr : eclipseProject.getPackageFragmentRoots()) {
@@ -79,7 +91,8 @@ public class JavaDirectory extends JavaContainer {
 				if (!pfr.toString().contains(".jar")) {
 					for (IJavaElement pf : pfr.getChildren()) {
 						//if it not a package containing test cases
-						if(!pf.getElementName().toLowerCase().contains("test")) {
+						if(!pf.getElementName().toLowerCase().contains("test") &&
+								!toBeIgnore.contains(pf.getElementName())) {
 							for (ICompilationUnit ci : ((IPackageFragment) pf).getCompilationUnits()) {
 								addJavaFile(javaFiles, ci);
 							}

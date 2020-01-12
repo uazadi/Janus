@@ -83,8 +83,7 @@ public class AggregatedFitnessFuction extends AbstractEvaluator implements Valua
 		for(AbstractEvaluator e: fitnessFunctions) {
 			if(e instanceof Valuable)
 				value = value
-				+ "Value of " + e.getClass() + ": \n"
-				+ ((Valuable) e).getValue(member) + "\n";
+				+ ((Valuable) e).getValue(member) + "\n&%&";
 		}
 		return value;
 	}

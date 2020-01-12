@@ -1,17 +1,55 @@
 package it.unimib.disco.essere.janus.gui;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+
+
 public class Utils {
 
-	private Utils() {
-		// TODO Auto-generated constructor stub
+	private Utils()  {
+		
+	}
+	
+	public static List<Object> checkJanusignore(File file, String key){
+		
+		List<Object> toBeIgnore = new ArrayList<Object>();
+		
+	    String content;
+		try {
+			content = FileUtils.readFileToString(new File("." + file.getPath()), "utf-8");
+			
+			//content = Files.readString(file.toPath());
+			
+			System.out.println("----------------> " + content);
+			
+			// Convert JSON string to JSONObject
+		    JSONObject ignores = new JSONObject(content); 
+		    
+		    System.out.println("----------------> " + ignores);
+		    
+		    toBeIgnore = ((JSONArray) ignores.get(key)).toList();
+		    
+		    
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			
+			System.out.println("Unable to read the .janusignore file, please check format");
+		}
+		
+		return toBeIgnore;
 	}
 
 	public static List<List<String>> loadAlgorithmsConfigFile() throws IOException{
@@ -19,7 +57,7 @@ public class Utils {
 		List<List<String>> decodedCSV= new ArrayList<List<String>>();
 
 		FileReader fr = 
-				new FileReader("/home/umberto/Desktop/Tesi/eclipse_workspace/Janus/icons/algorithms.csv"); 
+				new FileReader("./icons/algorithms.csv"); 
 
 		BufferedReader br = new BufferedReader(fr);  
 		
@@ -37,5 +75,9 @@ public class Utils {
 		br.close();
 		
 		return decodedCSV;
+	}
+	
+	public static void main() {
+		
 	}
 }

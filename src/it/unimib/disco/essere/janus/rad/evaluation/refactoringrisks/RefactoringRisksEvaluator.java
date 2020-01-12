@@ -60,8 +60,9 @@ public class RefactoringRisksEvaluator extends AbstractRefRisksEvaluator {
 		
 		double fitnessValue = 
 				(weightVarSimil * varSimil.computeFitnessFunction(member))
-				- (weightCodePosit * codePosit.computeFitnessFunction(member));
+				+ 1 + (weightCodePosit * codePosit.computeFitnessFunction(member));
 				//- (weightFunIn * funIn.computeFitnessFunction(member));
+		
 		return fitnessValue;
 	}
 	

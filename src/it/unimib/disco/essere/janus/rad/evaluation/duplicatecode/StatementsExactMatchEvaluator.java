@@ -66,9 +66,9 @@ public class StatementsExactMatchEvaluator extends AbstractDuplicateCodeEvaluato
 		List<String> statements = getStatements(member);
 		Map<String, Integer> copiedStatements = getCopiedStmt(statements, member);
 		double fitnessFunction = 
-				(weightCopyStmt * copiedStatements.size()) 
-				+ (weightDCLength * getAvgLength(copiedStatements))
-				+ (weightNumOfCopies * getAvgNumOfCopies(copiedStatements));
+				Math.log(1 + (weightCopyStmt * copiedStatements.size())) 
+				+ Math.log(1 + (weightDCLength * getAvgLength(copiedStatements)))
+				+ Math.log(1 + (weightNumOfCopies * getAvgNumOfCopies(copiedStatements)));
 		
 		return fitnessFunction * -1; // MAXIMIZE
 	}
@@ -81,7 +81,7 @@ public class StatementsExactMatchEvaluator extends AbstractDuplicateCodeEvaluato
 		String value = "";
 		for(String stmt : copiedStatements.keySet()) {
 			value = value 
-					+ stmt + "\n";
+					+ stmt + "\n&%&";
 //					+ " [" + stmt.getParent().getName() 
 //					+ ", " + stmt.getParent().getParent().getName() + "] \n";
 		}
