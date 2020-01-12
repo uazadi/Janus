@@ -1,35 +1,16 @@
 package it.unimib.disco.essere.janus.gui;
 
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.core.internal.resources.File;
 import org.eclipse.core.internal.resources.Project;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -37,22 +18,14 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
-import it.unimib.disco.essere.janus.behaviouralcheck.CheckCompilation;
-import it.unimib.disco.essere.janus.behaviouralcheck.JUnitCheck;
-import it.unimib.disco.essere.janus.behaviouralcheck.MainClassCheck;
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.janus.preprocessing.PreprocessingFacade;
-import it.unimib.disco.essere.janus.rad.moea.MethodSelector;
-import it.unimib.disco.essere.janus.rad.moea.MultiObjective;
-import it.unimib.disco.essere.janus.rad.moea.SingleObjective;
-import it.unimib.disco.essere.janus.refactoring.CCRefactoring;
-import it.unimib.disco.essere.janus.versioning.GitVersioner;
-import it.unimib.disco.essere.janus.versioning.VersionerException;
+
 
 @SuppressWarnings("restriction")
 public class HelloWorldAction extends Action implements IWorkbenchWindowActionDelegate, IViewActionDelegate {
 
-	private static final String JUNIT_NEW_TESTCASE_ID= "org.eclipse.jdt.junit.wizards.NewTestCaseCreationWizard";
+	//private static final String JUNIT_NEW_TESTCASE_ID= "org.eclipse.jdt.junit.wizards.NewTestCaseCreationWizard";
 
 	private IWorkbenchWindow window;
 	private IJavaProject selectedProject;

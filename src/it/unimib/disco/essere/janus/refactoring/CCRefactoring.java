@@ -628,4 +628,3 @@ public abstract class CCRefactoring {
 	}
 
 }
-
