@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 
-import it.unimib.disco.essere.deduplicator.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.deduplicator.preprocessing.PreprocessingFacade;
-import it.unimib.disco.essere.deduplicator.rad.moea.CustomAbstractProblem;
-import it.unimib.disco.essere.deduplicator.rad.moea.MethodSelector;
-import it.unimib.disco.essere.deduplicator.rad.moea.MultiObjective;
-import it.unimib.disco.essere.deduplicator.rad.moea.SingleObjective;
+import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
+import it.unimib.disco.essere.janus.preprocessing.PreprocessingFacade;
+import it.unimib.disco.essere.janus.rad.moea.CustomAbstractProblem;
+import it.unimib.disco.essere.janus.rad.moea.MethodSelector;
+import it.unimib.disco.essere.janus.rad.moea.MultiObjective;
+import it.unimib.disco.essere.janus.rad.moea.SingleObjective;
 
 public class RadCovergence {
 
@@ -70,7 +71,7 @@ public class RadCovergence {
 
 			for(int i=0; i < numOfAttempt; i++) {
 
-				System.out.println("aaaaaaaaaaaaaaa");
+				System.out.println("Printing iteration: " + i);
 
 				Instant start = Instant.now();
 
@@ -83,8 +84,6 @@ public class RadCovergence {
 				Instant end = Instant.now();
 
 				long time = Duration.between(start, end).getSeconds();
-
-				System.out.println("bbbbbbbbbbbbbbbbbb");
 
 				List<List<ASTNode>> clones = ms.selectInstances();
 				List<List<Double>> values = ms.getListOfFittests();
@@ -111,7 +110,9 @@ public class RadCovergence {
 					String info = "\t\t\t\t{\n";
 					info += "\t\t\t\t\t\"info\": [\n";
 					for(int k=0; k < clones.get(j).size(); k++) {
-						info += "\t\t\t\t\t\t{\"class\": "
+						info += "\t\t\t\t\t\t{\"package\": "
+								+ "\"" +((CompilationUnit) clones.get(j).get(k).getParent().getParent().getParent().getParent()).getPackage().toString().split(" ")[1].replace("\n", "") + "\", "			
+								+ "\"class\": "
 								+ "\"" + ((TypeDeclaration) clones.get(j).get(k).getParent().getParent().getParent()).getName() + "\", "
 								+ "\"method\": "
 								+ "\"" + ((MethodDeclaration) clones.get(j).get(k).getParent().getParent()).getName() + "\", "
@@ -119,17 +120,18 @@ public class RadCovergence {
 								+  clones.get(j).get(k).getStartPosition() 
 								+ "},\n";
 					}
+					
+					
+					
 					info = info.substring(0, info.length() - 2) + "\n"
 							+ "\t\t\t\t\t],\n";
 
-					info += "\t\t\t\t\t\"fittest_code\": \"" + clones.get(j).get(0).toString().replace("\n", " ") + "\"\n";
+					info += "\t\t\t\t\t\"fittest_code\": \"" + clones.get(j).get(0).toString().replace("\n", " <newline> ") + "\"\n";
 					info += "\t\t\t\t}";
 
 					clonesJson += info + ",\n";
 
 				}
-
-				System.out.println("ccccccccccccccccccccc");
 
 				clonesJson = clonesJson.substring(0, clonesJson.length() - 2) +"\n"
 						+ "\t\t\t],";

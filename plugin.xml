@@ -6,13 +6,14 @@
          point="org.eclipse.core.runtime.products">
       <product
             application="org.eclipse.e4.ui.workbench.swt.E4Application"
-            name="it.example.helloword">
+            name="Janus">
          <property
                name="applicationCSS"
-               value="platform:/plugin/it.package.helloword/css/default.css">
+               value="platform:/plugin/Janus/css/default.css">
          </property>
       </product>
    </extension>
+   <!--
    <extension
          point="org.eclipse.ui.actionSets">
       <actionSet
@@ -28,7 +29,7 @@
             	</separator>
          	</menu>
             <action
-                  class="it.example.helloword.HelloWorldAction"
+                  class="it.unimib.disco.essere.janus.gui.HelloWorldAction"
                   id="helloWorldAction"
                   label="Hello World Action"
                   menubarPath="helloWorldMenu/group1"
@@ -37,28 +38,29 @@
             </action>
       </actionSet>
    </extension>
-
+   -->
+	
    <extension point="org.eclipse.ui.popupMenus"> 
     <viewerContribution 
       id="org.eclipse.ui.articles.action.contribution.popup.navigator"
    targetID="org.eclipse.jdt.ui.PackageExplorer"> 
 
-   <menu 
+   <menu
          id="org.eclipse.ui.articles.action.contribution.navigator.subMenu"
          label="Janus"
          path="additions">
       <separator name="group1"/>
       </menu>
       <action
+      	 class="it.unimib.disco.essere.janus.gui.HelloWorldAction"
          id="org.eclipse.ui.articles.action.contribution.navigator.action2" 
          label="Start Refactoring"
          icon="icons/save_edit.png"
       	 menubarPath="org.eclipse.ui.articles.action.contribution.navigator.subMenu/group1" 
-         class="it.example.helloword.HelloWorldAction"
       	 enablesFor="1"
       >      
       </action> 
-
+	
    	</viewerContribution> 
    </extension>
    
@@ -68,19 +70,19 @@
    targetID="org.eclipse.ui.navigator.ProjectExplorer#PopupMenu"> 
 
    <menu
-         id="org.eclipse.ui.articles.action.contribution.navigator2.subMenu"
-         label="Janus"
-         path="additions">
-      <separator name="group1"/>
-      </menu>
+      id="org.eclipse.ui.articles.action.contribution.navigator2.subMenu"
+      label="Janus"
+      path="additions">
+        <separator name="group1"/>
+   </menu>
       <action
          id="org.eclipse.ui.articles.action.contribution.navigator2.action1" 
          label="Start Refactoring"
          icon="icons/save_edit.png"
       	 menubarPath="org.eclipse.ui.articles.action.contribution.navigator.subMenu/group1" 
-         class="it.example.helloword.HelloWorldAction"
+         class="it.unimib.disco.essere.janus.gui.HelloWorldAction"
       	 enablesFor="1"
-      	 state="false"
+      	 state="true"
          style="push"
       >      
       </action> 
@@ -88,29 +90,5 @@
    	</viewerContribution> 
    </extension>
    
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="popup:customnavigator.navigator?before=import">
-         <command
-               commandId="org.eclipse.ui.edit.copy"
-               label="aaa"
-               style="push">
-         </command>
-         <command
-               commandId="org.eclipse.ui.edit.paste"
-               label="bbb"
-               style="push">
-         </command>
-         <command
-               commandId="org.eclipse.ui.edit.delete"
-               label="ccc"
-               style="push">
-         </command>
-         <separator
-               name="customnavigator.separator"
-               visible="true">
-         </separator>
-      </menuContribution>
-   </extension>
+   
 </plugin>
