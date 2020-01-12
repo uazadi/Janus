@@ -78,8 +78,11 @@ public class JavaDirectory extends JavaContainer {
 				// if it is not a library (jar file)
 				if (!pfr.toString().contains(".jar")) {
 					for (IJavaElement pf : pfr.getChildren()) {
-						for (ICompilationUnit ci : ((IPackageFragment) pf).getCompilationUnits()) {
-							addJavaFile(javaFiles, ci);
+						//if it not a package containing test cases
+						if(!pf.getElementName().toLowerCase().contains("test")) {
+							for (ICompilationUnit ci : ((IPackageFragment) pf).getCompilationUnits()) {
+								addJavaFile(javaFiles, ci);
+							}
 						}
 					}
 				}
@@ -99,7 +102,8 @@ public class JavaDirectory extends JavaContainer {
 				if(!dir.equals(prevDir))
 					System.out.println("Loading " + dir + "...");
 				prevDir = dir;
-				addJavaFile(javaFiles, javaFile);
+				if(!dir.contains("test"))
+					addJavaFile(javaFiles, javaFile);
 		});
 		return javaFiles;
 	}
