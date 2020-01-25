@@ -18,6 +18,8 @@ import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 
+import it.unimib.disco.essere.janus.refactoring.exception.UnsuccessfulRefactoringException;
+
 public class CCExtractPullUpMethods extends CCRefactoring {
 	
 	private String lowestCommonSuperclass;

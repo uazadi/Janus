@@ -6,7 +6,7 @@ import java.util.Set;
 
 import it.unimib.disco.essere.janus.preprocessing.Instance;
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.janus.rad.Member;
+import it.unimib.disco.essere.janus.rad.evaluation.Member;
 
 public class VariableSimilarityEvaluator extends AbstractRefRisksEvaluator{
 	

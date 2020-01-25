@@ -1,8 +1,6 @@
 package it.unimib.disco.essere.janus.rad.evaluation;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.janus.rad.Member;
-import it.unimib.disco.essere.janus.rad.Population;
 
 /** The abstract class of a template methods design pattern */
 public abstract class AbstractEvaluator {

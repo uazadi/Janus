@@ -51,6 +51,8 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
+import it.unimib.disco.essere.janus.refactoring.exception.NotRefactorableCodeClones;
+import it.unimib.disco.essere.janus.refactoring.exception.UnsuccessfulRefactoringException;
 
 public abstract class CCRefactoring {
 

@@ -11,6 +11,8 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 
+import it.unimib.disco.essere.janus.refactoring.exception.UnsuccessfulRefactoringException;
+
 public class CCExtractMethod extends CCRefactoring {
 	
 	public CCExtractMethod(

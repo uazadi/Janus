@@ -12,8 +12,8 @@ import org.moeaframework.core.variable.EncodingUtils;
 import org.moeaframework.problem.AbstractProblem;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.janus.rad.Member;
 import it.unimib.disco.essere.janus.rad.evaluation.AbstractEvaluator;
+import it.unimib.disco.essere.janus.rad.evaluation.Member;
 import it.unimib.disco.essere.janus.rad.evaluation.Valuable;
 
 public abstract class CustomAbstractProblem extends AbstractProblem {

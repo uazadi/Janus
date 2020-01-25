@@ -1,4 +1,4 @@
-package it.unimib.disco.essere.janus.refactoring;
+package it.unimib.disco.essere.janus.refactoring.exception;
 
 public class UnsuccessfulRefactoringException extends Exception {
 

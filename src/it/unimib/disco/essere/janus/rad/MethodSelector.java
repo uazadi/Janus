@@ -1,4 +1,4 @@
-package it.unimib.disco.essere.janus.rad.moea;
+package it.unimib.disco.essere.janus.rad;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -22,6 +22,9 @@ import org.moeaframework.problem.AbstractProblem;
 import it.unimib.disco.essere.janus.preprocessing.Instance;
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.janus.preprocessing.PreprocessingFacade;
+import it.unimib.disco.essere.janus.rad.moea.CustomAbstractProblem;
+import it.unimib.disco.essere.janus.rad.moea.CustomStandardAlgorithms;
+import it.unimib.disco.essere.janus.rad.moea.MultiObjective;
 
 public class MethodSelector {
 

@@ -24,13 +24,13 @@ import it.unimib.disco.essere.janus.behaviouralcheck.JUnitCheck;
 import it.unimib.disco.essere.janus.behaviouralcheck.MainClassCheck;
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.janus.preprocessing.PreprocessingFacade;
+import it.unimib.disco.essere.janus.rad.MethodSelector;
 import it.unimib.disco.essere.janus.rad.moea.CustomAbstractProblem;
-import it.unimib.disco.essere.janus.rad.moea.MethodSelector;
 import it.unimib.disco.essere.janus.rad.moea.MultiObjective;
 import it.unimib.disco.essere.janus.rad.moea.SingleObjective;
 import it.unimib.disco.essere.janus.refactoring.CCRefactoring;
-import it.unimib.disco.essere.janus.refactoring.NotRefactorableCodeClones;
-import it.unimib.disco.essere.janus.refactoring.UnsuccessfulRefactoringException;
+import it.unimib.disco.essere.janus.refactoring.exception.NotRefactorableCodeClones;
+import it.unimib.disco.essere.janus.refactoring.exception.UnsuccessfulRefactoringException;
 import it.unimib.disco.essere.janus.versioning.GitVersioner;
 import it.unimib.disco.essere.janus.versioning.VersionerException;
 

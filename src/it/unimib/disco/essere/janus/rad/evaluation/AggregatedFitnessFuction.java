@@ -3,7 +3,6 @@ package it.unimib.disco.essere.janus.rad.evaluation;
 import java.util.List;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.janus.rad.Member;
 import it.unimib.disco.essere.janus.rad.evaluation.duplicatecode.AbstractDuplicateCodeEvaluator;
 import it.unimib.disco.essere.janus.rad.evaluation.refactoringrisks.AbstractRefRisksEvaluator;
 
