@@ -10,9 +10,9 @@ import org.moeaframework.core.Population;
 import org.moeaframework.core.Solution;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.janus.rad.Member;
 import it.unimib.disco.essere.janus.rad.evaluation.AbstractEvaluator;
 import it.unimib.disco.essere.janus.rad.evaluation.AggregatedFitnessFuction;
+import it.unimib.disco.essere.janus.rad.evaluation.Member;
 import it.unimib.disco.essere.janus.rad.evaluation.duplicatecode.StatementsExactMatchEvaluator;
 import it.unimib.disco.essere.janus.rad.evaluation.refactoringrisks.RefactoringRisksEvaluator;
 

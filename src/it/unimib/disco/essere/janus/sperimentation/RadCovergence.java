@@ -18,8 +18,8 @@ import org.eclipse.swt.layout.GridData;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.janus.preprocessing.PreprocessingFacade;
+import it.unimib.disco.essere.janus.rad.MethodSelector;
 import it.unimib.disco.essere.janus.rad.moea.CustomAbstractProblem;
-import it.unimib.disco.essere.janus.rad.moea.MethodSelector;
 import it.unimib.disco.essere.janus.rad.moea.MultiObjective;
 import it.unimib.disco.essere.janus.rad.moea.SingleObjective;
 import it.unimib.disco.essere.janus.gui.Utils;

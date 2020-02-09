@@ -1,7 +1,5 @@
 package it.unimib.disco.essere.janus.rad.evaluation;
 
-import it.unimib.disco.essere.janus.rad.Member;
-
 public interface Valuable {
 	
 	/**

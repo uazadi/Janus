@@ -1,7 +1,6 @@
 package it.unimib.disco.essere.janus.rad.evaluation;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.janus.rad.Member;
 
 public class NumberOfOnesEvaluator extends AbstractEvaluator{
 

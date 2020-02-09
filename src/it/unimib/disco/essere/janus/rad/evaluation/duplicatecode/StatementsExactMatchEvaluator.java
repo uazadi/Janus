@@ -3,7 +3,7 @@ package it.unimib.disco.essere.janus.rad.evaluation.duplicatecode;
 import it.unimib.disco.essere.janus.gui.Utils;
 import it.unimib.disco.essere.janus.preprocessing.Instance;
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
-import it.unimib.disco.essere.janus.rad.Member;
+import it.unimib.disco.essere.janus.rad.evaluation.Member;
 
 import java.util.ArrayList;
 import java.util.HashMap;

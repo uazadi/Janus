@@ -1,4 +1,4 @@
-package it.unimib.disco.essere.janus.rad;
+package it.unimib.disco.essere.janus.rad.evaluation;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -8,7 +8,7 @@ import java.util.Set;
 
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.janus.preprocessing.MethodHandler;
-import it.unimib.disco.essere.janus.rad.Member;
+import it.unimib.disco.essere.janus.rad.evaluation.Member;
 import it.unimib.disco.essere.janus.rad.exception.FitnessValueNotComputedException;
 import it.unimib.disco.essere.janus.rad.exception.NotInRangeNumberOfOnesException;
 import it.unimib.disco.essere.janus.rad.exception.PopulationNotCreatedException;

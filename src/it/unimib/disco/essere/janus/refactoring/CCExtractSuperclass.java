@@ -31,6 +31,8 @@ import org.eclipse.ltk.core.refactoring.participants.ResourceChangeChecker;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
+import it.unimib.disco.essere.janus.refactoring.exception.UnsuccessfulRefactoringException;
+
 public class CCExtractSuperclass extends CCRefactoring {
 
 	public CCExtractSuperclass(
