@@ -26,6 +26,8 @@ import org.eclipse.jface.text.Document;
 import org.osgi.framework.BundleContext;
 //import org.eclipse.jface.text.Document;
 
+import it.unimib.disco.essere.janus.gui.Utils;
+
 public class JavaFile extends JavaContainer {
 
 	/** The path of the .java file */
@@ -109,9 +111,17 @@ public class JavaFile extends JavaContainer {
 	@Override
 	protected List<JavaComponent> extractChildren() throws Exception {
 		ArrayList<JavaComponent> classes = new ArrayList<JavaComponent>();
+		
+		List<Object> toIgnoreClass = Utils.checkJanusignore("class");
+		
 		for (Object obj : node.types()) {
-			JavaClass c = new JavaClass((TypeDeclaration) obj, this);
-			classes.add(c);
+			
+			String fullyQualifiedName = this.packageName + "." + ((TypeDeclaration) obj).getName().toString();
+ 		
+			if(!toIgnoreClass.contains(fullyQualifiedName)) {
+				JavaClass c = new JavaClass((TypeDeclaration) obj, this);
+				classes.add(c);
+			}
 		}
 		return classes;
 	}

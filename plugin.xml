@@ -55,7 +55,7 @@
       	 class="it.unimib.disco.essere.janus.gui.HelloWorldAction"
          id="org.eclipse.ui.articles.action.contribution.navigator.action2" 
          label="Start Refactoring"
-         icon="icons/save_edit.png"
+         icon="icons/janus_transaprent_16x16.png"
       	 menubarPath="org.eclipse.ui.articles.action.contribution.navigator.subMenu/group1" 
       	 enablesFor="1"
       >      

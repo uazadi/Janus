@@ -37,6 +37,7 @@ public class GUIClass {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					System.out.println("------------------------------------------> " + page.frame);
 					page.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

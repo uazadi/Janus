@@ -28,6 +28,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JTabbedPane;
@@ -41,6 +42,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.ASTNode;
 
 import it.unimib.disco.essere.janus.behaviouralcheck.JUnitCheck;
 import it.unimib.disco.essere.janus.versioning.VersionerException;
@@ -165,66 +167,91 @@ public class ConfigurationPage extends GUIClass{
 		JButton btnStart = new JButton("Start refactoring");
 		panel.add(btnStart);
 
-		btnStart.addMouseListener(new MouseListener() {
+		if(config.runStepByStep) {
+			btnStart.addMouseListener(new MouseListener() {
 
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
+				@Override
+				public void mouseReleased(MouseEvent e) {}
 
-			}
+				@Override
+				public void mousePressed(MouseEvent e) {}
 
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
+				@Override
+				public void mouseExited(MouseEvent e) {}
 
-			}
+				@Override
+				public void mouseEntered(MouseEvent e) {}
 
-			@Override
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				WorkflowHandler handler = WorkflowHandler.getInstance();
-				handler.setConfig(config);
-				
-				try {
-					handler.initGitRepo();
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					WorkflowHandler handler = WorkflowHandler.getInstance();
+					handler.setConfig(config);
 					
-					handler.selectClones();
-					
-					handler.accomplishRefactoring();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-					
-				try {
-					handler.saveChanges();
-					
-					handler.commitChanges();
-
-					
-					if(!handler.runTests(config))
-						handler.rollbackChanges();
-					
-				} catch (Exception e1) {
 					try {
-						handler.rollbackChanges();
-					} catch (VersionerException e2) {
-						e2.printStackTrace();
+						handler.initGitRepo();
+						List<List<ASTNode>> stmts = handler.selectClones();
+						
+						frame.dispose();
+						
+						RefactoringStepPage window = new RefactoringStepPage(stmts, config);
+						window.launch();
+					} catch (Exception e1) {
+						e1.printStackTrace();
 					}
 				}
+			});
+		}else {
+			btnStart.addMouseListener(new MouseListener() {
 
-			}
-		});
+				@Override
+				public void mouseReleased(MouseEvent e) {}
+
+				@Override
+				public void mousePressed(MouseEvent e) {}
+
+				@Override
+				public void mouseExited(MouseEvent e) {}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {}
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					WorkflowHandler handler = WorkflowHandler.getInstance();
+					handler.setConfig(config);
+					
+					try {
+						handler.initGitRepo();
+						
+						handler.selectClones();
+						
+						handler.accomplishRefactoring();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+						
+					try {
+						handler.saveChanges();
+						
+						handler.commitChanges();
+
+						
+						if(!handler.runTests(config))
+							handler.rollbackChanges();
+						
+					} catch (Exception e1) {
+						try {
+							handler.rollbackChanges();
+						} catch (VersionerException e2) {
+							e2.printStackTrace();
+						}
+					}
+
+				}
+			});
+		}
+		
+		
 	}
 }

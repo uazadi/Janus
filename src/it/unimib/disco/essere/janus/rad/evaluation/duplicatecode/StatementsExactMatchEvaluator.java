@@ -1,5 +1,6 @@
 package it.unimib.disco.essere.janus.rad.evaluation.duplicatecode;
 
+import it.unimib.disco.essere.janus.gui.Utils;
 import it.unimib.disco.essere.janus.preprocessing.Instance;
 import it.unimib.disco.essere.janus.preprocessing.InstancesHandler;
 import it.unimib.disco.essere.janus.rad.Member;
@@ -111,11 +112,15 @@ public class StatementsExactMatchEvaluator extends AbstractDuplicateCodeEvaluato
 	}
 
 	private Map<String, Integer> getCopiedStmt(List<String> statements, Member member) {
+		
+		List<Object> toIgnore = Utils.checkJanusignore("keyword");
+		
 		Map<String, Integer> copiedStatements = new HashMap<String, Integer>();
 		for(int i=0; i < statements.size(); i++) {
 			for(int j=i+1; j < statements.size(); j++) {
 				if(statements.get(i).equals(statements.get(j)) // exact match
 						&& !statements.get(i).contains("return")
+						&& toIgnore.stream().parallel().anyMatch(x -> statements.indexOf(x) > -1)
 						&& statements.get(i).length() > 70
 						//&& statements.get(i).getOriginalStatement().split("\n").length > 2 
 						) {

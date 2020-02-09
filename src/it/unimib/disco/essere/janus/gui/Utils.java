@@ -11,33 +11,31 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.core.resources.IProject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 
 
 public class Utils {
-
-	private Utils()  {
-		
-	}
 	
-	public static List<Object> checkJanusignore(File file, String key){
+	public static IProject PROJECT;
+
+	private Utils()  {}
+	
+	public static List<Object> checkJanusignore(String key){
 		
 		List<Object> toBeIgnore = new ArrayList<Object>();
 		
+		File file = new File(PROJECT.getPathVariableManager().getURIValue("PROJECT_LOC").getPath() + "/.janusignore");
+		
+		
 	    String content;
 		try {
-			content = FileUtils.readFileToString(new File("." + file.getPath()), "utf-8");
-			
-			//content = Files.readString(file.toPath());
-			
-			System.out.println("----------------> " + content);
+			content = FileUtils.readFileToString(new File(file.getPath()), "utf-8");
 			
 			// Convert JSON string to JSONObject
 		    JSONObject ignores = new JSONObject(content); 
-		    
-		    System.out.println("----------------> " + ignores);
 		    
 		    toBeIgnore = ((JSONArray) ignores.get(key)).toList();
 		    
@@ -57,7 +55,8 @@ public class Utils {
 		List<List<String>> decodedCSV= new ArrayList<List<String>>();
 
 		FileReader fr = 
-				new FileReader("./icons/algorithms.csv"); 
+				//new FileReader("./icons/algorithms.csv"); 
+				new FileReader("/home/uazadi/Documents/Tesi/Janus/icons/algorithms.csv"); 
 
 		BufferedReader br = new BufferedReader(fr);  
 		

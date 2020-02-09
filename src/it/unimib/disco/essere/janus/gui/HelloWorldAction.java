@@ -68,22 +68,22 @@ public class HelloWorldAction extends Action implements IWorkbenchWindowActionDe
 		
 
 		IFile file = selectedProject.getProject().getFile(".janusignore");
-		//File file = new File(selectedProject.getPath() + "/.janusignore");
 		try {
 			JSONObject tomJsonObj = new JSONObject();
-			tomJsonObj.put("\"package\"", new JSONArray());
-			tomJsonObj.put("\"class\"", new JSONArray());
-			tomJsonObj.put("\"method\"", new JSONArray());
+			tomJsonObj.put("package", new JSONArray());
+			tomJsonObj.put("class", new JSONArray());
+			tomJsonObj.put("method", new JSONArray());
+			tomJsonObj.put("keyword", new JSONArray());
 			
 			String str = tomJsonObj.toString(2);
 			InputStream is = new ByteArrayInputStream(str.getBytes());
-			
 			
 			file.create(is, true, null);
 
 		} catch (CoreException e) {
 			// File already exist
 		}
+		Utils.PROJECT = selectedProject.getProject();
 
 		PreprocessingFacade pf = new PreprocessingFacade();
 		try {

@@ -10,7 +10,7 @@ public abstract class AbstractRefRisksEvaluator extends AbstractEvaluator {
 	}
 
 	protected double computeAvg(double sum, double size) {
-		double den = (size == 2) ? 1 : ((size*size)/ 2) - size;
+		double den = (size <= 2) ? 1 : ((size*size)/ 2) - size;
 		return sum/den;
 	}
 

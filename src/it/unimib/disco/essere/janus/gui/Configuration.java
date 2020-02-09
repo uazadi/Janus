@@ -13,7 +13,7 @@ public class Configuration {
 	
 	protected IWorkbenchPage workbenchPage;
 	
-	protected boolean runStepByStep;
+	protected boolean runStepByStep = true;
 	
 	
 	// General

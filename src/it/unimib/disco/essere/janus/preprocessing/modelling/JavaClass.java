@@ -5,7 +5,11 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
+
+import it.unimib.disco.essere.janus.gui.Utils;
 
 public class JavaClass extends JavaContainer{
 
@@ -91,8 +95,28 @@ public class JavaClass extends JavaContainer{
 	protected List<JavaComponent> extractChildren() throws Exception {
 		ArrayList<JavaComponent> methods = new ArrayList<JavaComponent>();
 		MethodDeclaration[] methodsNode = node.getMethods();
+		
+		List<Object> toIgnore = Utils.checkJanusignore("method");
+		
 		for(int i=0; i<methodsNode.length; i++) {
-			methods.add(new JavaMethod(methodsNode[i], this));
+			
+			String fullyQualifiedName = this.name + "." + methodsNode[i].getName().toString() + "(";
+			
+			if(methodsNode[i].parameters().size() > 0) {
+				for(Object param: methodsNode[i].parameters())
+					fullyQualifiedName += ((SingleVariableDeclaration) param).getType().toString() + ", ";
+				// delete last comma
+				fullyQualifiedName = fullyQualifiedName.substring(0, fullyQualifiedName.length() - 2) + ")";
+			}else{
+				fullyQualifiedName = fullyQualifiedName + ")";
+			}
+			
+			
+			
+			System.out.println(fullyQualifiedName);
+			
+			if(!toIgnore.contains(fullyQualifiedName))
+				methods.add(new JavaMethod(methodsNode[i], this));
 		}
 		return methods;
 	}

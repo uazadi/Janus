@@ -304,8 +304,6 @@ public class ConfigurationDetectionTab extends GUIClass {
 
 		// End Evolutionary Algorithm Selection____________________________
 
-
-
 		JScrollPane ss = new JScrollPane(detectionPanel);
 
 		return ss;

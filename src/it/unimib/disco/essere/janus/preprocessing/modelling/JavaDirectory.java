@@ -79,11 +79,9 @@ public class JavaDirectory extends JavaContainer {
 	private List<JavaComponent> extractFromEclipse() {
 		
 		IProject p = eclipseProject.getProject();
-	    File file = p.getFile(".janusignore").getFullPath().toFile();
-		List<Object> toBeIgnore = Utils.checkJanusignore(file, "package");
 		
-		System.out.println(toBeIgnore);
-		
+		List<Object> toIgnorePackages = Utils.checkJanusignore("package");
+
 		List<JavaComponent> javaFiles = new LinkedList<JavaComponent>();
 		try {
 			for (IPackageFragmentRoot pfr : eclipseProject.getPackageFragmentRoots()) {
@@ -91,8 +89,9 @@ public class JavaDirectory extends JavaContainer {
 				if (!pfr.toString().contains(".jar")) {
 					for (IJavaElement pf : pfr.getChildren()) {
 						//if it not a package containing test cases
-						if(!pf.getElementName().toLowerCase().contains("test") &&
-								!toBeIgnore.contains(pf.getElementName())) {
+						if(!pf.getElementName().toLowerCase().contains("test") 
+								&& !toIgnorePackages.contains(pf.getElementName())
+								) {
 							for (ICompilationUnit ci : ((IPackageFragment) pf).getCompilationUnits()) {
 								addJavaFile(javaFiles, ci);
 							}

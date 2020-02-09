@@ -65,18 +65,18 @@ public class RadCovergence {
 //		}
 //		
 		InstancesHandler ih = preprossesing.parseSourceCode(args[0]);
-		runMultiObjSelector(
-				ih, 
-				weightDupCode, 
-				weightRefRisk,
-				"Single",
-				numOfItertion, 
-				5,
-				"GA", 
-				args[0].split("/")[args[0].split("/").length - 1]);
-		ih.clear();
+//		runMultiObjSelector(
+//				ih, 
+//				weightDupCode, 
+//				weightRefRisk,
+//				"Single",
+//				numOfItertion, 
+//				5,
+//				"GA", 
+//				args[0].split("/")[args[0].split("/").length - 1]);
+		//ih.clear();
 		
-		ih = preprossesing.parseSourceCode(args[0]);
+		//ih = preprossesing.parseSourceCode(args[0]);
 		runMultiObjSelector(
 				ih, 
 				weightDupCode, 
@@ -86,9 +86,9 @@ public class RadCovergence {
 				10,
 				"NSGAII", 
 				args[0].split("/")[args[0].split("/").length - 1]);
-		ih.clear();
+		//ih.clear();
 		
-		ih = preprossesing.parseSourceCode(args[0]);
+		//ih = preprossesing.parseSourceCode(args[0]);
 		runMultiObjSelector(
 				ih, 
 				weightDupCode, 
@@ -246,7 +246,7 @@ public class RadCovergence {
 				
 				writer.println(iterationJson);
 
-				writer.println("\t\t}");
+				writer.println("\t\t},");
 			}
 
 

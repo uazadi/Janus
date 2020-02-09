@@ -9,6 +9,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.internal.ui.preferences.formatter.ModifyDialog.Images;
 
 import java.awt.BorderLayout;
 import java.awt.Window.Type;
@@ -44,13 +45,13 @@ public class HomePage extends GUIClass {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.getContentPane().setBackground(Color.DARK_GRAY);
-		frame.setBackground(Color.BLACK);
+		frame.getContentPane().setBackground(Color.WHITE);
+		frame.setBackground(Color.WHITE);
 		frame.setFont(new Font("Lato", Font.PLAIN, 12));
 		frame.setAlwaysOnTop(true);
 		frame.setBounds(100, 100, 700, 500);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.getContentPane().setLayout(new GridLayout(5, 0, 20, 20));
+		frame.getContentPane().setLayout(new GridLayout(3, 0, 20, 20));
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
 
@@ -58,30 +59,34 @@ public class HomePage extends GUIClass {
 		// Begin construct first row -----------------------------------------
 		JPanel panel = new JPanel();
 		frame.getContentPane().add(panel);
+		panel.setBackground(Color.WHITE);
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
 
+		JLabel picLabel = new JLabel(new ImageIcon("/home/uazadi/Documents/Tesi/Janus/icons/homepage.png"));	
+		panel.add(picLabel);
 
-		JTextPane txtpnHelloMyName = new JTextPane();
-		panel.add(txtpnHelloMyName);
-		txtpnHelloMyName.setBackground(Color.LIGHT_GRAY);
-		txtpnHelloMyName.setFont(new Font("Abyssinica SIL", Font.PLAIN, 15));
-		txtpnHelloMyName.setText("Hello, my name is Janus \n I am here to help you get rid of your code clones!");
+//		JTextPane txtpnHelloMyName = new JTextPane();
+//		panel.add(txtpnHelloMyName);
+//		txtpnHelloMyName.setBackground(Color.LIGHT_GRAY);
+//		txtpnHelloMyName.setFont(new Font("Abyssinica SIL", Font.PLAIN, 15));
+//		txtpnHelloMyName.setText("Hello, my name is Janus \n I am here to help you get rid of your code clones!");
 
-		StyledDocument doc = txtpnHelloMyName.getStyledDocument();
-		doc.setParagraphAttributes(0, doc.getLength(), center, false);
+//		StyledDocument doc = txtpnHelloMyName.getStyledDocument();
+//		doc.setParagraphAttributes(0, doc.getLength(), center, false);
 
 		// End construct first row -----------------------------------------
 
 
 		// Begin construct second row -----------------------------------------
 		JPanel panel_second_row = new JPanel();
+		panel_second_row.setBackground(Color.WHITE);
 		frame.getContentPane().add(panel_second_row);
 		panel_second_row.setLayout(new GridLayout(0, 3, 0, 0));
 
 
 		JPanel panel_2_1 = new JPanel();
 		panel_second_row.add(panel_2_1);
-
+		panel_2_1.setBackground(Color.WHITE);
 		JButton btnStepByStep = new JButton("Refactoring \n step-by-step");
 		panel_second_row.add(btnStepByStep);
 		
@@ -131,16 +136,20 @@ public class HomePage extends GUIClass {
 
 		JPanel panel_2_3 = new JPanel();
 		panel_second_row.add(panel_2_3);
+		panel_2_3.setBackground(Color.WHITE);
 		panel_2_3.setLayout(new GridLayout(3, 0, 0, 0));
 
 		JPanel panel_2_3_1 = new JPanel();
+		panel_2_3_1.setBackground(Color.WHITE);
 		panel_2_3.add(panel_2_3_1);
 
 		JPanel panel_2_3_2 = new JPanel();
 		panel_2_3.add(panel_2_3_2);
+		panel_2_3_2.setBackground(Color.WHITE);
 		panel_2_3_2.setLayout(new GridLayout(0, 3, 0, 0));
 
 		JPanel panel_2_3_2_1 = new JPanel();
+		panel_2_3_2_1.setBackground(Color.WHITE);
 		panel_2_3_2.add(panel_2_3_2_1);
 		
 		JLabel labelInfoStepByStep = this.getInfoLabel(
@@ -163,13 +172,15 @@ public class HomePage extends GUIClass {
 		// Begin construct third row -----------------------------------------
 		JPanel panel_third_row = new JPanel();
 		frame.getContentPane().add(panel_third_row);
+		panel_third_row
+		.setBackground(Color.WHITE);
 		panel_third_row.setLayout(new GridLayout(0, 3, 0, 0));
 
 
 		JPanel panel_3_1 = new JPanel();
 		panel_third_row.add(panel_3_1);
 
-		JButton btnAutonomus = new JButton("Refactoring \n autonomus");
+		JButton btnAutonomus = new JButton("Autonomus \n Refactoring");
 		panel_third_row.add(btnAutonomus);
 		
 		btnAutonomus.addMouseListener(new MouseListener() {
@@ -244,7 +255,7 @@ public class HomePage extends GUIClass {
 						+ "the folder is a Git repository and I will commit every\n"
 						+ "change that I am going to make.",
 				"Info on autonomus execution");
-		panel_3_3_2.add(labelInfoAutonomus, BorderLayout.EAST);
+		panel_3_3_2.add(labelInfoAutonomus);
 		// End construct third row -----------------------------------------
 
 	}
