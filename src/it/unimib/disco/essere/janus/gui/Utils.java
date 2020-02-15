@@ -56,7 +56,8 @@ public class Utils {
 
 		FileReader fr = 
 				//new FileReader("./icons/algorithms.csv"); 
-				new FileReader("/home/uazadi/Documents/Tesi/Janus/icons/algorithms.csv"); 
+				new FileReader("/home/umberto/Desktop/Tesi/eclipse_workspace/Janus/icons/algorithms.csv");
+				//new FileReader("/home/uazadi/Documents/Tesi/Janus/icons/algorithms.csv"); 
 
 		BufferedReader br = new BufferedReader(fr);  
 		

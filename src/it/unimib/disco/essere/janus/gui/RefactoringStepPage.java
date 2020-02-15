@@ -48,8 +48,6 @@ public class RefactoringStepPage extends GUIClass{
 	private void initialize(List<List<ASTNode>> stmts) {
 		frame = new JFrame();
 		
-		System.out.println("____________________________________________"  + frame);
-		
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));

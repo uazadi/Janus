@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.InputStream;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -15,6 +16,8 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.eclipse.core.runtime.Path;
 
 public class GUIClass {
 
@@ -37,7 +40,6 @@ public class GUIClass {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					System.out.println("------------------------------------------> " + page.frame);
 					page.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -56,7 +58,8 @@ public class GUIClass {
 
 	protected JLabel getInfoLabel(String message, String title) {
 
-		JLabel label = new JLabel(new ImageIcon("/home/umberto/Desktop/Tesi/eclipse_workspace/Janus/icons/info24x24.png"));
+		Path path = new Path("/icons/info24x24.png\"");
+		JLabel label = new JLabel(new ImageIcon(path.toPortableString()));
 
 		label.addMouseListener(new MouseListener() {
 			public void popupInfo() {

@@ -17,11 +17,13 @@ public class Configuration {
 	
 	
 	// General
-	protected int iterationAlg = 101;
+	protected int iterationAlg = 5;
 	
 	protected String gitRepo = null;
 	
 	protected boolean suggestNotExactMatch = false;
+	
+	protected int attemptBeforeConvergence = 5;
 	
 	// Preprocessing
 	

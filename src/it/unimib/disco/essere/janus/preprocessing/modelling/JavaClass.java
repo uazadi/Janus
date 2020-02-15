@@ -110,11 +110,7 @@ public class JavaClass extends JavaContainer{
 			}else{
 				fullyQualifiedName = fullyQualifiedName + ")";
 			}
-			
-			
-			
-			System.out.println(fullyQualifiedName);
-			
+
 			if(!toIgnore.contains(fullyQualifiedName))
 				methods.add(new JavaMethod(methodsNode[i], this));
 		}

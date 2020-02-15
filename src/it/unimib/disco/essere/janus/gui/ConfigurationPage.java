@@ -217,37 +217,11 @@ public class ConfigurationPage extends GUIClass{
 
 				@Override
 				public void mouseClicked(MouseEvent e) {
-					WorkflowHandler handler = WorkflowHandler.getInstance();
-					handler.setConfig(config);
+					frame.dispose();
 					
-					try {
-						handler.initGitRepo();
-						
-						handler.selectClones();
-						
-						handler.accomplishRefactoring();
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-						
-					try {
-						handler.saveChanges();
-						
-						handler.commitChanges();
-
-						
-						if(!handler.runTests(config))
-							handler.rollbackChanges();
-						
-					} catch (Exception e1) {
-						try {
-							handler.rollbackChanges();
-						} catch (VersionerException e2) {
-							e2.printStackTrace();
-						}
-					}
-
+					AutonomusRefactoring window = new AutonomusRefactoring(config);
+					window.frame.pack();
+					window.launch();
 				}
 			});
 		}
