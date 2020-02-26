@@ -17,7 +17,7 @@ public class Configuration {
 	
 	
 	// General
-	protected int iterationAlg = 5;
+	protected int iterationAlg = 50;
 	
 	protected String gitRepo = null;
 	

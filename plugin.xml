@@ -11,6 +11,10 @@
                name="applicationCSS"
                value="platform:/plugin/Janus/css/default.css">
          </property>
+         <property
+               name="appName"
+               value="Janus">
+         </property>
       </product>
    </extension>
    <!--

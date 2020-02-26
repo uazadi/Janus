@@ -190,7 +190,7 @@ public class Method implements Instance{
 		// Search for an import with the superclass name
 		for(String imp: javaFile.getImports()) {
 			if(imp.contains(javaClass.getSuperClass())){
-				superClass = imp;
+				superClass = imp.replace("\n", "");
 			}
 		}
 		

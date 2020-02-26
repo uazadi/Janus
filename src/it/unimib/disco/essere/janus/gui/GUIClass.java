@@ -58,7 +58,7 @@ public class GUIClass {
 
 	protected JLabel getInfoLabel(String message, String title) {
 
-		Path path = new Path("/icons/info24x24.png\"");
+		Path path = new Path("/home/uazadi/Documents/Tesi/Janus/icons/info24x24.png");
 		JLabel label = new JLabel(new ImageIcon(path.toPortableString()));
 
 		label.addMouseListener(new MouseListener() {

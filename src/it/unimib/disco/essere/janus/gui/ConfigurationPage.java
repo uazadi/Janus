@@ -109,8 +109,8 @@ public class ConfigurationPage extends GUIClass{
 		ConfigurationDetectionTab detection = new ConfigurationDetectionTab(this.config);
 		tabbedPane.addTab("Detection", null, detection.getPanel(), null);
 
-		ConfigurationRefactoringTab refactoring = new ConfigurationRefactoringTab(config);
-		tabbedPane.addTab("Refactoring", null, refactoring.getPanel(), null);
+//		ConfigurationRefactoringTab refactoring = new ConfigurationRefactoringTab(config);
+//		tabbedPane.addTab("Refactoring", null, refactoring.getPanel(), null);
 
 		ConfigurationTestTab test = new ConfigurationTestTab(this.config);
 		tabbedPane.addTab("Test", null, test.getPanel(), null);

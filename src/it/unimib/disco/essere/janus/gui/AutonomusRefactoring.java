@@ -145,9 +145,16 @@ PropertyChangeListener {
 		taskOutput.setEditable(false);
 		panel.setLayout(new BorderLayout(0, 0));
 
+		JPanel southPanel = new JPanel();
+		
+		JButton stopButton = new JButton("Stop refactoring");
+		
+		southPanel.add(startButton);
+		southPanel.add(stopButton);
+		
 
 		panel.add(progressBar, BorderLayout.NORTH);
-		panel.add(startButton, BorderLayout.SOUTH);
+		panel.add(southPanel, BorderLayout.SOUTH);
 		panel.add(new JScrollPane(taskOutput), BorderLayout.CENTER);
 		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 	}

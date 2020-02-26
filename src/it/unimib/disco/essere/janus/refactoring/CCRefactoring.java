@@ -59,6 +59,7 @@ public abstract class CCRefactoring {
 	protected List<ASTNode> cloneSet;
 	protected List<ICompilationUnit> icus_involved;
 	protected String extractedMethodName;
+	protected String extractedClassName;
 	protected Set<IMethod> extractedMethods;
 	protected IJavaProject project;
 
@@ -74,7 +75,7 @@ public abstract class CCRefactoring {
 		for(List<ASTNode> cloneSet: cloneSets) {
 
 			CCRefactoring refactoring = null;
-			
+
 			System.out.println("________________________________________________" + index);
 			index++;
 
@@ -110,8 +111,6 @@ public abstract class CCRefactoring {
 				}
 			}
 
-
-
 			if(sameClass) {
 				refactoring = new CCExtractMethod(cloneSet, icus_involved, selectedProject);
 			}
@@ -123,8 +122,9 @@ public abstract class CCRefactoring {
 						icus_involved);
 			}
 
-			if(refactoring != null)
+			if(refactoring != null) {
 				refactorings.add(refactoring);
+			}
 			else
 				throw new NotRefactorableCodeClones();
 		}
@@ -136,9 +136,11 @@ public abstract class CCRefactoring {
 					throws JavaModelException {
 		String lcsSoFar = 
 				buildFullName(icus_involved.get(0)).replace(".java", "");
+		
 		for(int i=1; i < icus_involved.size(); i++) {
 			String className =  
 					buildFullName(icus_involved.get(i)).replace(".java", "");
+			
 			lcsSoFar = ih.findNearestCommonSuperclass(lcsSoFar, className);		
 
 			System.out.println("[CCRefactoring - selectRefactoringTechniques]  LCS SO FAR: " + lcsSoFar);
@@ -150,7 +152,7 @@ public abstract class CCRefactoring {
 
 			ICompilationUnit superClass = 
 					getSuperClassICompilationUnit(lcsSoFar, selectedProject);
-				
+
 
 			if(icus_involved.size() >= 2) {
 				if(superClass == null) {
@@ -180,6 +182,14 @@ public abstract class CCRefactoring {
 		this.icus_involved = icus_involved;
 		this.project = project;
 	}
+	
+	public void setExtractedMethodName(String extractedMethodName) {
+		this.extractedMethodName = extractedMethodName;
+	}
+	
+	public void setExtractedClassName(String extractedClassName) {
+		this.extractedClassName = extractedClassName;
+	}
 
 	public List<ICompilationUnit> getCompilationUnitInvolved(){
 		return this.icus_involved;
@@ -190,29 +200,28 @@ public abstract class CCRefactoring {
 			IJavaProject selectedProject) 
 					throws JavaModelException {
 		ICompilationUnit superClass = null;
-		
+
 		try {
 			for(IPackageFragmentRoot ipdr: selectedProject.getPackageFragmentRoots()) {
-				String[] path = lcsSoFar.split("\\.");
-				String className = path[path.length - 1];
-				String packageName = lcsSoFar.replace("." + className, "");
-				
-				IPackageFragment ipf = ipdr.getPackageFragment(packageName);
-				
-				superClass = ipf.getCompilationUnit(className + ".java");
-				
-				if(superClass != null) {
+				if(!ipdr.isArchive() && !ipdr.isExternal()) {
+					String[] path = lcsSoFar.split("\\.");
+					String className = path[path.length - 1];
+					String packageName = lcsSoFar.replace("." + className, "");
 					
-					System.out.println("Super class: " + superClass);
-					
-					superClass.open(new NullProgressMonitor());
-					return superClass;
+					IPackageFragment ipf = ipdr.getPackageFragment(packageName);
+
+					superClass = ipf.getCompilationUnit(className + ".java");
+
+					if(superClass != null) {
+						superClass.open(new NullProgressMonitor());
+						return superClass;
+					}
 				}
 			}
 		}catch(JavaModelException e) {
 			// The superclass is not a class defined in the system 
 			// but is imported from a library
-			return superClass;
+			return null;
 		}
 		return null;
 	}
@@ -222,7 +231,7 @@ public abstract class CCRefactoring {
 			throws JavaModelException {
 		String packageDirty = icu.getPackageDeclarations()[0].toString();
 		String className = icu.getElementName();
-		return packageDirty.split(" ")[1] + "." + className;
+		return packageDirty.split(" ")[1] + "." + className.replace("\n", "");
 	}
 
 
@@ -252,23 +261,30 @@ public abstract class CCRefactoring {
 
 		ExtractMethodRefactoring refactoring = new ExtractMethodRefactoring(
 				workingCopy, stmt.getStartPosition(), stmt.getLength());
-
-		this.extractedMethodName = refactoring.getMethodName();
+		
+		if(extractedMethodName == null || extractedMethodName.equals("")) {
+			Random rand = new Random();
+			this.extractedMethodName = "extractedMethod" + rand.nextInt(1000);
+		}
+		
+		refactoring.setMethodName(extractedMethodName);
+		
+		//this.extractedMethodName = refactoring.getMethodName();
 		refactoring.checkAllConditions(new NullProgressMonitor());
-		
+
 		Change change = null;
-		
+
 		try {
 			change = refactoring.createChange(new NullProgressMonitor());
 			change.perform(new NullProgressMonitor());
 		}catch(NullPointerException e) {
-			System.out.println("[CCREefactoring] ERROR NullPointerException during creation of the change");
+			System.out.println("[CCRefactoring] ERROR NullPointerException during creation of the change");
 		}
-	
+
 
 		return workingCopy;
 	}
-
+	
 	private Set<IMethod> getExtractedMethods() throws JavaModelException {
 		Set<IMethod> extractedMethods = new HashSet<>();
 
@@ -282,6 +298,8 @@ public abstract class CCRefactoring {
 			// Find the extracted methods
 			for(int j=0; j < methods.length; j++) {
 				IMethod im = methods[j];
+				
+				System.out.println(im.getElementName() + "    -    " + extractedMethodName);
 
 				if(im.getElementName().equals(this.extractedMethodName)){
 					extractedMethods.add(im);

@@ -68,12 +68,14 @@ public class MethodHandler implements InstancesHandler{
 	}
 
 	public int registerInstance(Instance ins) { 
+		
 		methods.put(lowerAvaibleIndex, ins);
 		String superClass = null;
 		if("java.lang.Object".equals(ins.getSuperClassName()))
 			superClass = "java.lang.Object";
 		else 
 			superClass = ins.getFullSuperClassName();
+		
 		hierarchyMap.put(ins.getClassName(), superClass);
 		
 		if(ins.isMain())
@@ -161,7 +163,7 @@ public class MethodHandler implements InstancesHandler{
 			generateFullHierarchyPaths();
 		return hierarchyFullPathMap.get(javaClassName);
 	}
-
+	
 	/**
 	 * To be called ONLY when all the classes has been added!
 	 * (otherwise the superclasses paths generated could be incomplete).
@@ -183,11 +185,29 @@ public class MethodHandler implements InstancesHandler{
 		if(hierarchyFullPathMap == null) 
 			generateFullHierarchyPaths();
 
+		
+//		if((firstClassName.contains("PluginDescriptor") || firstClassName.contains("PluginDescriptor")) &&
+//				(firstClassName.contains("PluginElement") || secondClassName.contains("PluginElement"))) {
+//		System.out.println("11111 " + firstClassName);
+//		System.out.println("22222 " + secondClassName);
+//		}
+//		
+//		if(x) {
+//			System.out.println("11111 " + hierarchyFullPathMap.get(firstClassName));
+//			System.out.println("22222 " + hierarchyFullPathMap.get(secondClassName));
+//			
+//		}
+		
+//		System.out.println("First " + firstClassName);
+//		System.out.println("Hierarchy First " + hierarchyFullPathMap.get(firstClassName));
+//		System.out.println("Second " + secondClassName);
+//		System.out.println("Hierarchy Second " + hierarchyFullPathMap.get(secondClassName));
+//		
+//		System.out.println("\n\n");
+		
 		LinkedHashSet<String> firstHierPath = getHierarchyPath(firstClassName);
 		LinkedHashSet<String> secondHierPath = getHierarchyPath(secondClassName);
 
-//		System.out.println("11111 " + firstHierPath);
-//		System.out.println("22222 " + secondHierPath);
 
 		if(firstHierPath == null || secondHierPath == null) {
 			return null;
@@ -196,13 +216,13 @@ public class MethodHandler implements InstancesHandler{
 		for(String superClass: firstHierPath) {
 			//System.out.println(superClass);
 			if(secondHierPath.contains(superClass))
-				return superClass;
+				return superClass.replace("\n", "");
 		}
 
 		return null;
 	}
 
-	private void newEntry(String javaClass) {
+	private void newEntry(String javaClass) {		
 		hierarchyFullPathMap.put(javaClass, new LinkedHashSet<String>());
 	}
 
@@ -212,6 +232,7 @@ public class MethodHandler implements InstancesHandler{
 
 		// add all the superclasses
 		String superClassName = getSuperClassName(javaClass);
+		
 		while(superClassName != null) {
 			hierarchyFullPathMap.get(javaClass).add(superClassName);
 			superClassName = getSuperClassName(superClassName);

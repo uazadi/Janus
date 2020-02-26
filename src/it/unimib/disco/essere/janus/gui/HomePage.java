@@ -45,6 +45,7 @@ public class HomePage extends GUIClass {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setTitle("Janus homepage");
 		frame.getContentPane().setBackground(Color.WHITE);
 		frame.setBackground(Color.WHITE);
 		frame.setFont(new Font("Lato", Font.PLAIN, 12));
@@ -172,12 +173,12 @@ public class HomePage extends GUIClass {
 		// Begin construct third row -----------------------------------------
 		JPanel panel_third_row = new JPanel();
 		frame.getContentPane().add(panel_third_row);
-		panel_third_row
-		.setBackground(Color.WHITE);
+		panel_third_row.setBackground(Color.WHITE);
 		panel_third_row.setLayout(new GridLayout(0, 3, 0, 0));
 
 
 		JPanel panel_3_1 = new JPanel();
+		panel_3_1.setBackground(Color.WHITE);
 		panel_third_row.add(panel_3_1);
 
 		JButton btnAutonomus = new JButton("Autonomus \n Refactoring");
@@ -229,16 +230,20 @@ public class HomePage extends GUIClass {
 
 		JPanel panel_3_3 = new JPanel();
 		panel_third_row.add(panel_3_3);
+		panel_3_3.setBackground(Color.WHITE);
 		panel_3_3.setLayout(new GridLayout(3, 0, 0, 0));
 
 		JPanel panel_3_3_1 = new JPanel();
+		panel_3_3_1.setBackground(Color.WHITE);
 		panel_3_3.add(panel_3_3_1);
 
 		JPanel panel_3_3_2 = new JPanel();
+		panel_3_3_2.setBackground(Color.WHITE);
 		panel_3_3.add(panel_3_3_2);
 		panel_3_3_2.setLayout(new GridLayout(0, 3, 0, 0));
 
 		JPanel panel_3_3_2_1 = new JPanel();
+		panel_3_3_2_1.setBackground(Color.WHITE);
 		panel_3_3_2.add(panel_3_3_2_1);
 		
 		JLabel labelInfoAutonomus = this.getInfoLabel(

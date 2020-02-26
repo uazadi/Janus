@@ -60,68 +60,79 @@ public class CCExtractSuperclass extends CCRefactoring {
 	}
 
 	private void applyExtractSuperclass(IMethod kept) throws OperationCanceledException, CoreException, MalformedTreeException, BadLocationException {
-		CodeGenerationSettings settings =
-				JavaPreferencesSettings.getCodeGenerationSettings(kept.getCompilationUnit().getJavaProject());
+		try {
+			CodeGenerationSettings settings =
+					JavaPreferencesSettings.getCodeGenerationSettings(kept.getCompilationUnit().getJavaProject());
 
-		IMember[] ims = {kept};
-		
-		Random rand = new Random();
-		String superClassName = "Prova" + rand.nextInt(1000);
-		
 
-		ExtractSupertypeProcessor refactoring = new ExtractSupertypeProcessor(ims, settings);
+			IMember[] ims = {kept};
 
-		refactoring.checkInitialConditions(new NullProgressMonitor());
-		refactoring.setTypeName(superClassName);
-		CheckConditionsContext ccc = new CheckConditionsContext();
-		ccc.add(new ResourceChangeChecker());
-		refactoring.checkFinalConditions(new NullProgressMonitor(), ccc);
-		Change change = refactoring.createChange(new NullProgressMonitor());
-		change.perform(new NullProgressMonitor());
-
-		ICompilationUnit selectedICU = kept.getCompilationUnit();
-		CompilationUnit selectedCU =  fromICUtoCU(selectedICU);
-
-		ASTParser parser = ASTParser.newParser(AST.JLS11); 
-		parser.setSource(selectedICU);
-
-		Type superClassType = ((TypeDeclaration)selectedCU.types().get(0)).getSuperclassType();
-
-		for(ICompilationUnit icu: icus_involved) {
-			if(icu != selectedICU) {
-				CompilationUnit cu = fromICUtoCU(icu);
-
-				ASTRewrite rewriter = ASTRewrite.create(cu.getAST());
-				
-				// Select only the first type in the CompilationUnit because usually
-				// there only one main class in each java file and that is the one
-				// that should be modified
-				((TypeDeclaration) cu.types().get(0))
-					.setSuperclassType(
-							cu.getAST().newSimpleType(
-									cu.getAST().newSimpleName(superClassName)));
-
-				//Document document = new Document(icu.getSource());
-
-				String s = ((TypeDeclaration) cu.types().get(0)).toString();
-
-				// new code to test
-				ICompilationUnit newIcu = (ICompilationUnit)cu.getJavaElement();
-				Document document = new Document(newIcu.getBuffer().getContents());
-
-				//				Old version
-//				Document document = new Document(cu.toString());
-
-				TextEdit edits = rewriter.rewriteAST(document, null);
-				edits.apply(document);
-
-				icu.getBuffer().setContents(document.get());
+			if(this.extractedClassName == null || this.extractedClassName.equals("")) {
+				Random rand = new Random();
+				extractedClassName = "ExtractedSuperClass" + rand.nextInt(1000);
 			}
+
+
+			ExtractSupertypeProcessor refactoring = new ExtractSupertypeProcessor(ims, settings);
+
+			refactoring.checkInitialConditions(new NullProgressMonitor());
+			refactoring.setTypeName(extractedClassName);
+			CheckConditionsContext ccc = new CheckConditionsContext();
+			ccc.add(new ResourceChangeChecker());
+			refactoring.checkFinalConditions(new NullProgressMonitor(), ccc);
+			Change change = refactoring.createChange(new NullProgressMonitor());
+			change.perform(new NullProgressMonitor());
+
+			ICompilationUnit selectedICU = kept.getCompilationUnit();
+			CompilationUnit selectedCU =  fromICUtoCU(selectedICU);
+
+			ASTParser parser = ASTParser.newParser(AST.JLS11); 
+			parser.setSource(selectedICU);
+
+			Type superClassType = ((TypeDeclaration)selectedCU.types().get(0)).getSuperclassType();
+
+			for(ICompilationUnit icu: icus_involved) {
+				if(icu != selectedICU) {
+					CompilationUnit cu = fromICUtoCU(icu);
+
+					// new code to test
+					ASTRewrite rewriter = ASTRewrite.create(cu.getAST());
+					ICompilationUnit newIcu = (ICompilationUnit) cu.getJavaElement();
+					Document document = new Document(newIcu.getBuffer().getContents());
+
+					// Select only the first type in the CompilationUnit because usually
+					// there only one main class in each java file and that is the one
+					// that should be modified
+					//				((TypeDeclaration) cu.types().get(0))
+					//					.setSuperclassType(
+					//							cu.getAST().newSimpleType(
+					//									cu.getAST().newSimpleName(superClassName)));
+
+					rewriter.replace(((TypeDeclaration) cu.types().get(0)).getSuperclassType(), cu.getAST().newSimpleName(extractedClassName), null);
+
+					//Document document = new Document(icu.getSource());
+
+					String s = ((TypeDeclaration) cu.types().get(0)).toString();
+
+
+					//				Old version
+					//Document document = new Document(cu.toString());
+
+					TextEdit edits = rewriter.rewriteAST(document, null);
+					edits.apply(document);
+
+					icu.getBuffer().setContents(document.get());
+
+				}
+			}
+
+			// Add the new Superclass in the list of compilation Unit involved in the refactoring
+			String fullyQualifiedNameSuperClass = selectedICU.getTypes()[0].getPackageFragment().getElementName() + "." + extractedClassName;
+			IType superClassIType = project.findType(fullyQualifiedNameSuperClass);
+			icus_involved.add(superClassIType.getCompilationUnit());
+
+		}catch(NullPointerException e) {
+			System.out.println("[CCExtractSuperclass] ERROR NullPointerException during superclass extraction");
 		}
-		
-		// Add the new Superclass in the list of compilation Unit involved in the refactoring
-		String fullyQualifiedNameSuperClass = selectedICU.getTypes()[0].getPackageFragment().getElementName() + "." + superClassName;
-		IType superClassIType = project.findType(fullyQualifiedNameSuperClass);
-		icus_involved.add(superClassIType.getCompilationUnit());
 	}
 }

@@ -88,6 +88,7 @@ public class RefactoringStepPage extends GUIClass{
 		
 		cloneList.setLayout(new GridLayout(count, 0, 0, 0));
 		
+		String fullStmt = "";
 		for(List<ASTNode> clonesInstance: stmts) {
 			for(ASTNode stmt: clonesInstance) {
 				
@@ -99,17 +100,20 @@ public class RefactoringStepPage extends GUIClass{
 						((CompilationUnit) stmt.getParent().getParent().getParent().getParent())
 							.getLineNumber(((Statement) stmt).getStartPosition());
 				
-				String fullStmt = "Class: " + ((TypeDeclaration) stmt.getParent().getParent().getParent()).getName()
+				fullStmt += "Package: " + ((CompilationUnit) stmt.getParent().getParent().getParent().getParent()).getPackage()
+						+ "\nClass: " + ((TypeDeclaration) stmt.getParent().getParent().getParent()).getName()
 						+ "\nMethod: " + ((MethodDeclaration) stmt.getParent().getParent()).getName()
 						+  "  (line " + methodStartingPosition + ")"
-						+ "\nStatement (line " + stmtStartingPosition + "):\n " + stmt.toString();
+						+ "\nStatement (line " + stmtStartingPosition + "):\n " + stmt.toString() + "\n\n\n";
 				
-				JTextArea clone = new JTextArea();
-				clone.setEditable(false);
-				clone.setText(fullStmt);
-				cloneList.add(clone);
+				
 			}
 		}
+		
+		JTextArea clone = new JTextArea();
+		clone.setEditable(false);
+		clone.setText(fullStmt);
+		cloneList.add(clone);
 		
 
 		JPanel panel_1 = new JPanel();

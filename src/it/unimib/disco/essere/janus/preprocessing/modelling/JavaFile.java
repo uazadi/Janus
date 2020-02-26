@@ -61,10 +61,10 @@ public class JavaFile extends JavaContainer {
 		this.node = generateAST(path);
 		this.packageName = (node.getPackage() != null)
 				? node.getPackage().getName().toString()
-				: "";
+						: "";
 
-		this.importNames = extractImports();
-		this.children = extractChildren();
+				this.importNames = extractImports();
+				this.children = extractChildren();
 	}
 
 	public JavaFile(ICompilationUnit icu, JavaDirectory dir) throws Exception {
@@ -73,10 +73,10 @@ public class JavaFile extends JavaContainer {
 		this.node = generateAST(icu);
 		this.packageName = (node.getPackage() != null)
 				? node.getPackage().getName().toString()
-				: "";
+						: "";
 
-		this.importNames = extractImports();
-		this.children = extractChildren();
+				this.importNames = extractImports();
+				this.children = extractChildren();
 	}
 
 	@Override
@@ -111,16 +111,19 @@ public class JavaFile extends JavaContainer {
 	@Override
 	protected List<JavaComponent> extractChildren() throws Exception {
 		ArrayList<JavaComponent> classes = new ArrayList<JavaComponent>();
-		
+
 		List<Object> toIgnoreClass = Utils.checkJanusignore("class");
-		
+
 		for (Object obj : node.types()) {
 			
-			String fullyQualifiedName = this.packageName + "." + ((TypeDeclaration) obj).getName().toString();
- 		
-			if(!toIgnoreClass.contains(fullyQualifiedName)) {
-				JavaClass c = new JavaClass((TypeDeclaration) obj, this);
-				classes.add(c);
+			if(obj instanceof TypeDeclaration) {
+				
+				String fullyQualifiedName = this.packageName + "." + ((TypeDeclaration) obj).getName().toString();
+
+				if(!toIgnoreClass.contains(fullyQualifiedName)) {
+					JavaClass c = new JavaClass((TypeDeclaration) obj, this);
+					classes.add(c);
+				}
 			}
 		}
 		return classes;
@@ -150,31 +153,31 @@ public class JavaFile extends JavaContainer {
 		return (CompilationUnit) parser.createAST(null);
 	}
 
-//-----------------------------------------------------------------------------		
+	//-----------------------------------------------------------------------------		
 
-//		ResourcesPlugin p = new ResourcesPlugin();
-//    	try {
-//			p.start(null);
-//		} catch (Exception e) {
-//			
-//			e.printStackTrace();
-//		}
-//		ResourcesPlugin plugin = new ResourcesPlugin();
-//		plugin.start(null);
-//		IPath path = new Path(name);
-//		IFile file = project.getFile(path);
-//-----------------------------------------------------------------------------
+	//		ResourcesPlugin p = new ResourcesPlugin();
+	//    	try {
+	//			p.start(null);
+	//		} catch (Exception e) {
+	//			
+	//			e.printStackTrace();
+	//		}
+	//		ResourcesPlugin plugin = new ResourcesPlugin();
+	//		plugin.start(null);
+	//		IPath path = new Path(name);
+	//		IFile file = project.getFile(path);
+	//-----------------------------------------------------------------------------
 
-//		ASTParser parser = ASTParser.newParser(AST.JLS11);
-//		
-//		
-//		IWorkspace workspace = ResourcesPlugin.getWorkspace(); 
-//		IPath path = Path.fromOSString(stringPath);
-//		IFile file = workspace.getRoot().getFileForLocation(path);
-//		ICompilationUnit compilationUnit = (ICompilationUnit)JavaCore.create(file);
-//		parser.setSource(compilationUnit);
-//		
-//		return (CompilationUnit) parser.createAST(null);
+	//		ASTParser parser = ASTParser.newParser(AST.JLS11);
+	//		
+	//		
+	//		IWorkspace workspace = ResourcesPlugin.getWorkspace(); 
+	//		IPath path = Path.fromOSString(stringPath);
+	//		IFile file = workspace.getRoot().getFileForLocation(path);
+	//		ICompilationUnit compilationUnit = (ICompilationUnit)JavaCore.create(file);
+	//		parser.setSource(compilationUnit);
+	//		
+	//		return (CompilationUnit) parser.createAST(null);
 
 	// }
 

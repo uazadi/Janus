@@ -113,14 +113,12 @@ public class StatementsExactMatchEvaluator extends AbstractDuplicateCodeEvaluato
 
 	private Map<String, Integer> getCopiedStmt(List<String> statements, Member member) {
 		
-		List<Object> toIgnore = Utils.checkJanusignore("keyword");
-		
 		Map<String, Integer> copiedStatements = new HashMap<String, Integer>();
 		for(int i=0; i < statements.size(); i++) {
 			for(int j=i+1; j < statements.size(); j++) {
 				if(statements.get(i).equals(statements.get(j)) // exact match
 						&& !statements.get(i).contains("return")
-						&& toIgnore.stream().parallel().anyMatch(x -> statements.indexOf(x) > -1)
+						&& !isToIgnore(statements.get(i))
 						&& statements.get(i).length() > 70
 						//&& statements.get(i).getOriginalStatement().split("\n").length > 2 
 						) {
@@ -137,6 +135,15 @@ public class StatementsExactMatchEvaluator extends AbstractDuplicateCodeEvaluato
 		}
 		member.setClonedStatement(copiedStatements);
 		return copiedStatements;
+	}
+	
+	public boolean isToIgnore(String stmt) {
+		List<Object> toIgnore = Utils.checkJanusignore("keyword");
+		for(Object str: toIgnore) {
+			if(stmt.contains((String) str))
+				return true;
+		}
+		return false;
 	}
 	
 	public List<String> getStatements(Member member) {
